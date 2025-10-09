@@ -1,0 +1,263 @@
+"use client"
+
+import type React from "react"
+
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye } from "lucide-react"
+import { useRef, useState } from "react"
+import { parseFile, type ParsedFile } from "@/lib/file-parser"
+import { FilePreviewDialog } from "./file-preview-dialog"
+import { useToast } from "@/hooks/use-toast"
+
+interface InputSectionProps {
+  inputText: string
+  setInputText: (text: string) => void
+  isLoading: boolean
+  onCheck: () => void
+  onClear: () => void
+  onLoadExample: () => void
+  onOpenConfig: () => void
+  charCount: number
+}
+
+export function InputSection({
+  inputText,
+  setInputText,
+  isLoading,
+  onCheck,
+  onClear,
+  onLoadExample,
+  onOpenConfig,
+  charCount,
+}: InputSectionProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null)
+  const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [isParsingFile, setIsParsingFile] = useState(false)
+  const { toast } = useToast()
+
+  const handleCopy = async () => {
+    if (!inputText.trim()) return
+    await navigator.clipboard.writeText(inputText)
+    toast({
+      title: "已复制",
+      description: "文本已复制到剪贴板",
+    })
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const validExtensions = [".txt", ".md", ".markdown", ".text", ".docx", ".pdf"]
+    const fileExt = "." + file.name.split(".").pop()?.toLowerCase()
+
+    if (!validExtensions.includes(fileExt)) {
+      toast({
+        title: "不支持的文件格式",
+        description: "请上传 TXT, MD, DOCX 或 PDF 文件",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsParsingFile(true)
+    setUploadedFile(file.name)
+
+    try {
+      const parsed = await parseFile(file)
+      setParsedFile(parsed)
+      setPreviewOpen(true)
+
+      toast({
+        title: "文件解析成功",
+        description: `已解析 ${parsed.metadata.wordCount} 个字符`,
+      })
+    } catch (error) {
+      console.error("[v0] File parsing error:", error)
+      toast({
+        title: "文件解析失败",
+        description: error instanceof Error ? error.message : "无法解析文件",
+        variant: "destructive",
+      })
+      removeFile()
+    } finally {
+      setIsParsingFile(false)
+    }
+  }
+
+  const handleConfirmFile = () => {
+    if (parsedFile) {
+      setInputText(parsedFile.text)
+    }
+  }
+
+  const removeFile = () => {
+    setUploadedFile(null)
+    setParsedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  return (
+    <>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5 text-primary"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                />
+              </svg>
+            </div>
+            输入文本
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="在此处粘贴您的文章内容..."
+              className="min-h-[300px] resize-none font-sans text-base leading-relaxed"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2"
+              onClick={handleCopy}
+              title="复制文本"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{charCount} 字符</div>
+          </div>
+
+          <div
+            className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.md,.markdown,.text,.docx,.pdf"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            {!uploadedFile ? (
+              <div className="text-muted-foreground">
+                <Upload className="h-8 w-8 mx-auto mb-2" />
+                <p>点击或拖拽文件到此处</p>
+                <p className="text-xs mt-1">支持 TXT, MD, DOCX, PDF 格式</p>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                {isParsingFile ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <span className="text-sm">解析文件中...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-5 h-5 text-primary" />
+                    <span className="text-sm">{uploadedFile}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setPreviewOpen(true)
+                      }}
+                      title="预览文件"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeFile()
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onLoadExample}>
+                <Lightbulb className="h-4 w-4 mr-2" />
+                示例
+              </Button>
+              <Button variant="outline" onClick={onOpenConfig}>
+                <Settings className="h-4 w-4 mr-2" />
+                配置
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" onClick={onClear} className="text-destructive hover:text-destructive">
+                清空
+              </Button>
+              <Button onClick={onCheck} disabled={isLoading || !inputText.trim()}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    校对中...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-4 h-4 mr-2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                      />
+                    </svg>
+                    开始校对
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <FilePreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        file={parsedFile}
+        onConfirm={handleConfirmFile}
+      />
+    </>
+  )
+}

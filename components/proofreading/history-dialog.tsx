@@ -1,0 +1,83 @@
+"use client"
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import type { HistoryEntry } from "@/types/proofreading"
+import { Trash2 } from "lucide-react"
+
+interface HistoryDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  history: HistoryEntry[]
+  onRestore: (entry: HistoryEntry) => void
+  onDelete: (entry: HistoryEntry) => void
+  onClearAll: () => void
+}
+
+export function HistoryDialog({ open, onOpenChange, history, onRestore, onDelete, onClearAll }: HistoryDialogProps) {
+  const formatDate = (timestamp: string) => {
+    return new Date(timestamp).toLocaleString("zh-CN")
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[80vh]">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>检查历史</DialogTitle>
+              <DialogDescription>查看和恢复之前的校对记录</DialogDescription>
+            </div>
+            {history.length > 0 && (
+              <Button variant="destructive" size="sm" onClick={onClearAll}>
+                清空全部
+              </Button>
+            )}
+          </div>
+        </DialogHeader>
+
+        <ScrollArea className="h-[500px] pr-4">
+          {history.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>暂无历史记录</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {history.map((entry, index) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => {
+                    onRestore(entry)
+                    onOpenChange(false)
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>{formatDate(entry.timestamp)}</span>
+                      <span>字数：{entry.text.length}</span>
+                      <span>问题：{entry.issues.filter((i) => !i.ignored).length}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete(entry)
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-foreground line-clamp-2">{entry.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  )
+}
