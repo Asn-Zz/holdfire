@@ -18,7 +18,7 @@
 
 - **文章校对** - 检测并修复文章中的语法错误、拼写错误、标点符号问题和表达优化建议。
 - **文件上传** - 支持txt,md,docx,pdf文件上传。
-- **链接识别([firecrawl](https://firecrawl.dev))** - 识别文章链接，如公众号、知乎、头条等。
+- **链接识别([firecrawl](https://firecrawl.dev))** - 识别文章链接，如公众号、知乎、头条等（在编辑器中粘贴链接）。
 - **自定义词库** - 自定义词库，分组管理。
 - **全局配置(api,提示词,强度)** - 全局配置，在线更新。
 - **历史记录** - 保存历史记录。
@@ -46,6 +46,19 @@ npm run dev
 
 # 打包客户端
 npm run electron:build
+```
+
+## 📝 配置环境变量
+
+在项目根目录下创建一个名为 `.env.local` 的文件，并填入您配置信息。
+
+```plaintext
+# .env.local
+NEXT_PUBLIC_OPENAI_API_URL=https://api.example.com/v1/chat/completions
+NEXT_PUBLIC_OPENAI_API_KEY=your_api_key
+NEXT_PUBLIC_OPENAI_MODEL=gpt-3.5-turbo
+
+NEXT_PUBLIC_FIRE_KEY=your_fire_key
 ```
 
 ## 📂 项目结构
