@@ -1,5 +1,5 @@
 {
-  "name": "proofreading-assistant",
+  "name": "holdfire",
   "version": "1.0.0",
   "private": true,
   "main": "electron/main.js",
