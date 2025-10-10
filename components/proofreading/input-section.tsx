@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
-import { FilePreviewDialog } from "./file-preview-dialog"
+import { request } from "@/lib/request"
+import { FilePreviewCard } from "./file-preview-card"
 import { useToast } from "@/hooks/use-toast"
 
 interface InputSectionProps {
@@ -89,9 +90,9 @@ export function InputSection({
     }
   }
 
-  const handleConfirmFile = () => {
+  const handleConfirmFile = (text?: string) => {
     if (parsedFile) {
-      setInputText(parsedFile.text)
+      setInputText(text || parsedFile.text)
     }
   }
 
@@ -100,6 +101,36 @@ export function InputSection({
     setParsedFile(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
+    }
+  }
+
+  const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = event.clipboardData.getData('text');
+    const urlRegex = /^(https|http):\/\/[^\s/$.?#].[^\s]*$/i;
+    const apiKey = process.env.NEXT_PUBLIC_FIRE_KEY;
+    
+    if (urlRegex.test(pastedText) && apiKey) {
+      event.preventDefault();
+      if (window.confirm(`检测到链接，是否要抓取网页内容？\n${pastedText}`)) {
+        setIsParsingFile(true);
+        try {
+          const body = { url: pastedText, formats: ['markdown'] };
+          const url = 'https://api.firecrawl.dev/v1/scrape';
+          const res = await request.post<{ data?: Record<string, any>}>(url, body, {
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+            },
+          });
+          const title = res?.data?.title || 'scraped-content';
+          const content = res?.data?.markdown || res?.data?.content || '';
+          const file = new File([content], `${title}.md`, { type: 'text/markdown' });
+          handleFileUpload({ target: { files: [file] } } as any);
+        } catch (error: any) {
+          console.error("[v0] Error scraping URL:", error);
+        } finally {
+          setIsParsingFile(false);
+        }
+      }
     }
   }
 
@@ -132,8 +163,9 @@ export function InputSection({
             <Textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onPaste={handlePaste}
               placeholder="在此处粘贴您的文章内容..."
-              className="min-h-[300px] resize-none font-sans text-base leading-relaxed"
+              className="min-h-[300px] max-h-[600px] overflow-y-auto resize-none font-sans text-base leading-relaxed"
             />
             <Button
               variant="ghost"
@@ -252,7 +284,7 @@ export function InputSection({
         </CardContent>
       </Card>
 
-      <FilePreviewDialog
+      <FilePreviewCard
         open={previewOpen}
         onOpenChange={setPreviewOpen}
         file={parsedFile}

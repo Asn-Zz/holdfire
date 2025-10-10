@@ -11,6 +11,9 @@ import { Toaster } from "@/components/ui/toaster"
 export const metadata: Metadata = {
   title: "文章校对助手 - AI 驱动的智能文本校对工具",
   description: "专业的中文文章校对工具，使用 AI 技术智能检测语法错误、拼写错误、标点符号问题和表达优化建议",
+  icons: {
+    icon: "/favicon.ico",
+  },
   generator: "v0.app",
 }
 

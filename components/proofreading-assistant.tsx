@@ -85,7 +85,7 @@ export function ProofreadingAssistant() {
       {/* Floating History Button */}
       <button
         onClick={() => setShowHistory(true)}
-        className="fixed bottom-8 right-8 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
+        className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
         aria-label="查看历史记录"
       >
         <svg
@@ -94,7 +94,7 @@ export function ProofreadingAssistant() {
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-6 h-6 mx-auto"
+          className="w-5 h-5 mx-auto"
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>

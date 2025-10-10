@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
-import { Check, X } from "lucide-react"
+import { X } from "lucide-react"
 
 interface IssueHighlightProps {
   inputText: string
@@ -72,44 +72,69 @@ export function IssueHighlight({
   }
 
   return (
-    <div className="relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed">
-      {segments.map((segment, index) => {
-        if (segment.type === "text") {
-          return <span key={index}>{segment.content}</span>
-        }
+    <>
+      <div className="relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed">
+        {segments.map((segment, index) => {
+          if (segment.type === "text") {
+            return <span key={index}>{segment.content}</span>
+          }
 
-        const issue = segment.issue!
-        return (
-          <span key={index} className={`relative group cursor-pointer ${getHighlightClass(issue)}`}>
-            {segment.content}
-            {!issue.fixed && !issue.ignored && (
-              <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-10 w-80">
-                <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
-                  <div className="text-xs font-medium text-destructive mb-1">问题：{issue.reason}</div>
-                  <div className="text-xs mb-2">
-                    建议修改为：<span className="font-medium text-green-500">{issue.suggestion}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" className="h-7 text-xs" onClick={() => onAcceptSuggestion(issue.id)}>
-                      <Check className="h-3 w-3 mr-1" />
-                      接受
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 text-xs bg-transparent"
-                      onClick={() => onIgnoreSuggestion(issue.id)}
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      忽略
-                    </Button>
+          const issue = segment.issue!
+          return (
+            <span key={index} className={`relative group cursor-pointer ${getHighlightClass(issue)}`}>
+              {segment.content}
+              {!issue.fixed && !issue.ignored && (
+                <div className="suggestion-popup absolute bottom-full mb-2 left-0 hidden group-hover:block z-10 min-w-[200px]">
+                  <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
+                    <div className="text-xs font-medium text-destructive mb-1">问题：{issue.reason}</div>
+                    <div className="text-xs mb-2">
+                      建议修改为：<span className="font-medium text-green-500">{issue.suggestion}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" className="h-7 text-xs" onClick={() => onAcceptSuggestion(issue.id)}>
+                        接受建议
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={() => onIgnoreSuggestion(issue.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </span>
-        )
-      })}
-    </div>
+              )}
+            </span>
+          )
+        })}
+      </div>
+
+      <style>
+        {`
+        .opacity-30 .suggestion-popup {
+          display: none;
+        }
+        .suggestion-popup:before {
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          height: 10px;
+        }
+        .suggestion-popup:after {
+          content: "";
+          position: absolute;
+          top: calc(100% - 1px);
+          left: 50%;
+          transform: translateX(-50%);
+          border: 6px solid transparent;
+          border-top-color: white;
+        }
+        `}
+      </style>
+    </>
   )
 }

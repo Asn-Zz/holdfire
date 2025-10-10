@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import type {
   Issue,
   ProofreadingConfig,
@@ -9,11 +9,12 @@ import type {
   IssueCategory,
   Correction,
 } from "@/types/proofreading"
+import { useLocalStorage } from "./use-localStorage"
 
 const DEFAULT_CONFIG: ProofreadingConfig = {
-  apiUrl: "http://120.25.178.163:3000/v1/chat/completions",
-  apiKey: "sk-n10Ckyu69KH1uJGW38NUSyFEwXfDXCsGwLD4nvRrQQowZNJv",
-  model: "deepseek-v3",
+  apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL as string,
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY as string,
+  model: process.env.NEXT_PUBLIC_OPENAI_MODEL as string,
   intensity: "strict",
   customPrompt: "你是一个专业的文章校对编辑，擅长发现并修正中文语法、拼写错误，同时保持原文风格。",
 }
@@ -40,59 +41,22 @@ export function useProofreading() {
   const [showResults, setShowResults] = useState(false)
   const [issues, setIssues] = useState<Issue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
-  const [config, setConfig] = useState<ProofreadingConfig>(DEFAULT_CONFIG)
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [thesauruses, setThesauruses] = useState<ThesaurusGroup[]>(DEFAULT_THESAURUS)
+  const [config, setConfig] = useLocalStorage<ProofreadingConfig>("config", DEFAULT_CONFIG)
+  const [history, setHistory] = useLocalStorage<HistoryEntry[]>("history", [])
+  const [thesauruses, setThesauruses] = useLocalStorage<ThesaurusGroup[]>("thesauruses", DEFAULT_THESAURUS)  
 
   const charCount = useMemo(() => inputText.length, [inputText])
-
-  // Load config, history, and thesaurus from sessionStorage
-  useEffect(() => {
-    const savedConfig = sessionStorage.getItem("proofreaderConfig_v3")
-    if (savedConfig) {
-      try {
-        setConfig({ ...DEFAULT_CONFIG, ...JSON.parse(savedConfig) })
-      } catch (e) {
-        console.error("Failed to parse config:", e)
-      }
-    }
-
-    const savedHistory = sessionStorage.getItem("checkerHistory")
-    if (savedHistory) {
-      try {
-        setHistory(JSON.parse(savedHistory))
-      } catch (e) {
-        console.error("Failed to parse history:", e)
-      }
-    }
-
-    const savedThesaurus = sessionStorage.getItem("customThesauruses")
-    if (savedThesaurus) {
-      try {
-        setThesauruses(JSON.parse(savedThesaurus))
-      } catch (e) {
-        console.error("Failed to parse thesaurus:", e)
-      }
-    }
-  }, [])
-
-  // Save thesaurus to sessionStorage
-  useEffect(() => {
-    sessionStorage.setItem("customThesauruses", JSON.stringify(thesauruses))
-  }, [thesauruses])
 
   const updateConfig = (updates: Partial<ProofreadingConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }))
   }
 
   const saveConfig = () => {
-    sessionStorage.setItem("proofreaderConfig_v3", JSON.stringify(config))
   }
 
   const resetConfig = () => {
     if (confirm("确定要恢复默认配置吗？")) {
       setConfig(DEFAULT_CONFIG)
-      sessionStorage.removeItem("proofreaderConfig_v3")
     }
   }
 
@@ -225,7 +189,6 @@ ${text}
       }
       const updatedHistory = [newEntry, ...history].slice(0, 10)
       setHistory(updatedHistory)
-      sessionStorage.setItem("checkerHistory", JSON.stringify(updatedHistory))
     } catch (error: any) {
       console.error("校对出错:", error)
       setApiError(error.message || "发生未知错误")
@@ -292,13 +255,11 @@ ${text}
   const deleteHistoryEntry = (entry: HistoryEntry) => {
     const updatedHistory = history.filter((h) => h !== entry)
     setHistory(updatedHistory)
-    sessionStorage.setItem("checkerHistory", JSON.stringify(updatedHistory))
   }
 
   const clearAllHistory = () => {
     if (confirm("确定要清空历史记录吗？")) {
       setHistory([])
-      sessionStorage.removeItem("checkerHistory")
     }
   }
 

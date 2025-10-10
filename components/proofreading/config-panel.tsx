@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +20,34 @@ interface ConfigPanelProps {
 }
 
 export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave, onReset }: ConfigPanelProps) {
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const fetchOpenAIModels = async () => {
+    try {
+      const [modelUrl] = config.apiUrl.split('/chat');
+      const response = await fetch(`${modelUrl}/models`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.apiKey}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('无法获取模型列表');
+
+      const res = await response.json();
+      if (res.data) {
+        const models = res.data.map((m: Record<string, unknown>) => m.id as string);
+        setAvailableModels(models);
+        if (models.length > 0 && !models.includes(config.model)) {
+          onConfigChange({ model: models[0] });
+        }
+
+        return models;
+      }
+    } catch (error) {
+      console.error('获取模型列表失败:', error);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -40,6 +69,7 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
 
           <div className="space-y-2">
             <Label htmlFor="apiKey">API Key</Label>
+
             <Input
               id="apiKey"
               type="password"
@@ -51,12 +81,30 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
 
           <div className="space-y-2">
             <Label htmlFor="model">模型</Label>
-            <Input
-              id="model"
-              value={config.model}
-              onChange={(e) => onConfigChange({ model: e.target.value })}
-              placeholder="gpt-3.5-turbo"
-            />
+            <div className="flex gap-2">
+              {availableModels.length > 0 ? (
+                <Select value={config.model} onValueChange={(value) => onConfigChange({ model: value as any })}>
+                  <SelectTrigger id="model">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="model"
+                  value={config.model}
+                  onChange={(e) => onConfigChange({ model: e.target.value })}
+                  placeholder="gpt-3.5-turbo"
+                />
+              )}
+              <Button onClick={fetchOpenAIModels}>获取</Button>
+            </div>
           </div>
 
           <div className="space-y-2">
