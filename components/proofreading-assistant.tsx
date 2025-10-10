@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "./proofreading/header"
 import { InputSection } from "./proofreading/input-section"
 import { ResultSection } from "./proofreading/result-section"
@@ -8,6 +8,7 @@ import { ConfigPanel } from "./proofreading/config-panel"
 import { HistoryDialog } from "./proofreading/history-dialog"
 import { ThesaurusDialog } from "./proofreading/thesaurus-dialog"
 import { useProofreading } from "@/hooks/use-proofreading"
+import eventBus from "@/lib/eventBus"
 
 export function ProofreadingAssistant() {
   const [showConfig, setShowConfig] = useState(false)
@@ -15,6 +16,13 @@ export function ProofreadingAssistant() {
   const [showThesaurus, setShowThesaurus] = useState(false)
 
   const proofreading = useProofreading()
+
+  useEffect(() => {
+    eventBus.on("openThesaurusModal", async (text: string) => {
+      setShowThesaurus(true);
+      await navigator.clipboard.writeText(text);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,6 +32,7 @@ export function ProofreadingAssistant() {
         <InputSection
           inputText={proofreading.inputText}
           setInputText={proofreading.setInputText}
+          wordCount={proofreading.wordCount}
           isLoading={proofreading.isLoading}
           onCheck={proofreading.checkText}
           onClear={proofreading.clearInput}
@@ -57,7 +66,6 @@ export function ProofreadingAssistant() {
         open={showConfig}
         onOpenChange={setShowConfig}
         config={proofreading.config}
-        onConfigChange={proofreading.updateConfig}
         onSave={proofreading.saveConfig}
         onReset={proofreading.resetConfig}
       />

@@ -153,6 +153,9 @@ export function ResultSection({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-muted-foreground">问题列表</h3>
+            <span className="text-xs text-muted-foreground">
+              选中词语查看更多
+            </span>
           </div>
 
           <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as IssueCategory | "all")}>

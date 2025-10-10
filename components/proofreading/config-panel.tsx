@@ -9,42 +9,49 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { ProofreadingConfig } from "@/types/proofreading"
 import { Save, RotateCcw } from "lucide-react"
+import { DEFAULT_CONFIG } from "@/hooks/use-proofreading"
 
 interface ConfigPanelProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   config: ProofreadingConfig
-  onConfigChange: (config: Partial<ProofreadingConfig>) => void
-  onSave: () => void
+  onSave: (config: ProofreadingConfig) => void
   onReset: () => void
 }
 
-export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave, onReset }: ConfigPanelProps) {
+export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: ConfigPanelProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [tempConfig, setTempConfig] = useState({ ...config });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+
   const fetchOpenAIModels = async () => {
+    if (isLoading) return;
     try {
+      setIsLoading(true);
       const [modelUrl] = config.apiUrl.split('/chat');
       const response = await fetch(`${modelUrl}/models`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${config.apiKey}`,
         },
-      });
+      }); 
 
       if (!response.ok) throw new Error('无法获取模型列表');
 
       const res = await response.json();
       if (res.data) {
-        const models = res.data.map((m: Record<string, unknown>) => m.id as string);
+        const models = res.data.map((m: Record<string, unknown>) => m.id || m.root || "");
         setAvailableModels(models);
         if (models.length > 0 && !models.includes(config.model)) {
-          onConfigChange({ model: models[0] });
+          setTempConfig({ ...tempConfig, model: models[0] });
         }
 
         return models;
       }
     } catch (error) {
       console.error('获取模型列表失败:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,8 +68,8 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
             <Label htmlFor="apiUrl">API URL</Label>
             <Input
               id="apiUrl"
-              value={config.apiUrl}
-              onChange={(e) => onConfigChange({ apiUrl: e.target.value })}
+              value={tempConfig.apiUrl}
+              onChange={(e) => setTempConfig({ ...tempConfig, apiUrl: e.target.value })}
               placeholder="https://api.example.com/v1/chat/completions"
             />
           </div>
@@ -73,8 +80,8 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
             <Input
               id="apiKey"
               type="password"
-              value={config.apiKey}
-              onChange={(e) => onConfigChange({ apiKey: e.target.value })}
+              value={tempConfig.apiKey}
+              onChange={(e) => setTempConfig({ ...tempConfig, apiKey: e.target.value })}
               placeholder="sk-..."
             />
           </div>
@@ -83,8 +90,8 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
             <Label htmlFor="model">模型</Label>
             <div className="flex gap-2">
               {availableModels.length > 0 ? (
-                <Select value={config.model} onValueChange={(value) => onConfigChange({ model: value as any })}>
-                  <SelectTrigger id="model">
+                <Select value={tempConfig.model} onValueChange={(value) => setTempConfig({ ...tempConfig, model: value as any })}>
+                  <SelectTrigger className="w-full" id="model">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -98,35 +105,21 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
               ) : (
                 <Input
                   id="model"
-                  value={config.model}
-                  onChange={(e) => onConfigChange({ model: e.target.value })}
+                  value={tempConfig.model}
+                  onChange={(e) => setTempConfig({ ...tempConfig, model: e.target.value })}
                   placeholder="gpt-3.5-turbo"
                 />
               )}
-              <Button onClick={fetchOpenAIModels}>获取</Button>
+              {tempConfig.apiUrl && tempConfig.apiKey && <Button onClick={fetchOpenAIModels} disabled={isLoading} className="disabled:opacity-50">获取</Button>}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="intensity">校对强度</Label>
-            <Select value={config.intensity} onValueChange={(value) => onConfigChange({ intensity: value as any })}>
-              <SelectTrigger id="intensity">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gentle">轻度</SelectItem>
-                <SelectItem value="moderate">中度</SelectItem>
-                <SelectItem value="strict">严格</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="customPrompt">自定义提示词</Label>
             <Textarea
               id="customPrompt"
-              value={config.customPrompt}
-              onChange={(e) => onConfigChange({ customPrompt: e.target.value })}
+              value={tempConfig.customPrompt}
+              onChange={(e) => setTempConfig({ ...tempConfig, customPrompt: e.target.value })}
               placeholder="你是一个专业的文章校对编辑..."
               rows={4}
             />
@@ -134,13 +127,18 @@ export function ConfigPanel({ open, onOpenChange, config, onConfigChange, onSave
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onReset}>
+          <Button variant="outline" 
+            onClick={() => {
+              setTempConfig(DEFAULT_CONFIG)
+              onReset()
+            }}
+          >
             <RotateCcw className="h-4 w-4 mr-2" />
             恢复默认
           </Button>
           <Button
             onClick={() => {
-              onSave()
+              onSave(tempConfig)
               onOpenChange(false)
             }}
           >

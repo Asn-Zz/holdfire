@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 interface InputSectionProps {
   inputText: string
   setInputText: (text: string) => void
+  wordCount: number
   isLoading: boolean
   onCheck: () => void
   onClear: () => void
@@ -26,6 +27,7 @@ interface InputSectionProps {
 export function InputSection({
   inputText,
   setInputText,
+  wordCount,
   isLoading,
   onCheck,
   onClear,
@@ -138,24 +140,13 @@ export function InputSection({
     <>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5 text-primary"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                />
-              </svg>
-            </div>
-            输入文本
+          <CardTitle className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2">
+              <Edit className="h-5 w-5 text-primary" />输入文本
+            </span>
+            <span className="text-xs text-muted-foreground">
+              支持粘贴链接抓取
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -257,7 +248,7 @@ export function InputSection({
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    校对中...
+                    校对中{wordCount ? `(${wordCount})` : "..."}
                   </>
                 ) : (
                   <>

@@ -10,8 +10,9 @@ import type {
   Correction,
 } from "@/types/proofreading"
 import { useLocalStorage } from "./use-localStorage"
+import fetchSSE from "@/lib/fetchSSE"
 
-const DEFAULT_CONFIG: ProofreadingConfig = {
+export const DEFAULT_CONFIG: ProofreadingConfig = {
   apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL as string,
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY as string,
   model: process.env.NEXT_PUBLIC_OPENAI_MODEL as string,
@@ -38,6 +39,7 @@ const EXAMPLE_TEXT = `太阳徐徐升起，给大地带来了早晨的气息。�
 export function useProofreading() {
   const [inputText, setInputText] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [wordCount, setWordCount] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [issues, setIssues] = useState<Issue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
@@ -47,11 +49,8 @@ export function useProofreading() {
 
   const charCount = useMemo(() => inputText.length, [inputText])
 
-  const updateConfig = (updates: Partial<ProofreadingConfig>) => {
-    setConfig((prev) => ({ ...prev, ...updates }))
-  }
-
-  const saveConfig = () => {
+  const saveConfig = (config: ProofreadingConfig) => {
+    setConfig(config)
   }
 
   const resetConfig = () => {
@@ -111,37 +110,11 @@ ${text}
 
     try {
       const prompt = createPrompt(inputText)
-      const response = await fetch(config.apiUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${config.apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: config.model,
-          messages: [
-            { role: "system", content: config.customPrompt },
-            { role: "user", content: prompt },
-          ],
-          stream: false,
-          temperature: 0.1,
-          response_format: { type: "json_object" },
-        }),
+      const { content } = await fetchSSE(config, prompt, (chunk) => {
+        setWordCount(chunk.length)
       })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(`校对API请求失败: ${response.status} ${response.statusText}. ${errorData.error?.message || ""}`)
-      }
-
-      const data = await response.json()
-      if (!data.choices || !data.choices[0]?.message?.content) {
-        throw new Error("校对API响应格式无效。")
-      }
-
-      let responseContent = data.choices[0].message.content
-      responseContent = responseContent.replace(/^```json\s*|```$/g, "").trim()
-
+      
+      const responseContent = content.replace(/^```json\s*|```$/g, "").trim()
       let parsedIssues = []
       try {
         parsedIssues = JSON.parse(responseContent)
@@ -298,6 +271,7 @@ ${text}
   return {
     inputText,
     setInputText,
+    wordCount,
     isLoading,
     showResults,
     issues,
@@ -306,7 +280,6 @@ ${text}
     history,
     thesauruses,
     charCount,
-    updateConfig,
     saveConfig,
     resetConfig,
     clearInput,

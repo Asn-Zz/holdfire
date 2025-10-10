@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import { X, BookOpen, Search } from "lucide-react"
+import eventBus from "@/lib/eventBus"
 
 interface IssueHighlightProps {
   inputText: string
@@ -71,9 +72,79 @@ export function IssueHighlight({
     return `${baseClass} ${!isActive ? "opacity-30" : ""}`
   }
 
+  const [searchPopup, setSearchPopup] = useState<{ visible: boolean; x: number; y: number; text: string } | null>(null);
+  const handleTextSelection = () => {                                                                
+    const selection = window.getSelection();                                                                   
+    const selectedText = selection?.toString().trim();                                                         
+    const resultArea = document.getElementById('result-text-area');   
+    
+    if (selectedText && selection && resultArea) {                                                             
+      const range = selection.getRangeAt(0);                                                                 
+      const rect = range.getBoundingClientRect();                                                            
+      const containerRect = resultArea.getBoundingClientRect();                                             
+      setSearchPopup({                                                                                      
+        visible: true,                                                                                     
+        x: rect.left - containerRect.left + rect.width / 2 - 75, // Adjust for icon size                   
+        y: rect.top - containerRect.top - 40, // Position above selection                                  
+        text: selectedText,                                                                                
+      });                                                                                                    
+    } else {                                                                                                   
+      setSearchPopup(null);                                                                                  
+    }                                                                                                          
+  };
+
   return (
     <>
-      <div className="relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed">
+      <div id="result-text-area" className="relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed" onMouseUp={handleTextSelection}>
+        {searchPopup?.visible && (
+            <div 
+                className='absolute z-10 flex bg-white rounded-lg shadow-lg overflow-hidden' 
+                style={{ left: searchPopup.x, top: searchPopup.y }} 
+                onMouseDown={(e) => e.preventDefault()}
+            >
+                <a 
+                    href={`https://www.shenyandayi.com/wantWordsResult?query=${encodeURIComponent(searchPopup.text)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="px-4 py-2 border-r border-gray-100 hover:bg-gray-100"  
+                    title="近义词查询"
+                >
+                    <BookOpen className="w-4 h-4 text-green-500" /> 
+                </a>
+
+                <a 
+                    href={`https://cn.bing.com/search?q=${encodeURIComponent(searchPopup.text)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="px-4 py-2 border-r border-gray-100 hover:bg-gray-100"  
+                    title="网页搜索"
+                >
+                    <Search className="w-4 h-4 text-blue-500" />
+                </a>
+
+                <button 
+                    onClick={() => eventBus.emit('openThesaurusModal', searchPopup.text)}
+                    className="px-4 py-2 hover:bg-gray-100"
+                    title="打开词库"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4 h-4 mr-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                    />
+                  </svg>
+                </button>
+            </div>
+        )}
+
         {segments.map((segment, index) => {
           if (segment.type === "text") {
             return <span key={index}>{segment.content}</span>
