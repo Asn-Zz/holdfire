@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Header } from "./proofreading/header"
+import { Footer } from "./proofreading/footer"
 import { InputSection } from "./proofreading/input-section"
 import { ResultSection } from "./proofreading/result-section"
 import { ConfigPanel } from "./proofreading/config-panel"
@@ -28,7 +29,7 @@ export function ProofreadingAssistant() {
     <div className="min-h-screen bg-background">
       <Header onOpenThesaurus={() => setShowThesaurus(true)} />
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="flex flex-col gap-8 container mx-auto px-4 py-8 max-w-7xl">
         <InputSection
           abortCheck={proofreading.abortCheck}
           config={proofreading.config}
@@ -44,7 +45,7 @@ export function ProofreadingAssistant() {
         />
 
         {proofreading.apiError && (
-          <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
             <p className="text-sm text-destructive font-medium">校对出错</p>
             <p className="text-sm text-muted-foreground mt-1">{proofreading.apiError}</p>
           </div>
@@ -63,6 +64,8 @@ export function ProofreadingAssistant() {
             onIgnoreCategory={proofreading.ignoreCategoryIssues}
           />
         )}
+
+        <Footer />
       </div>
 
       <ConfigPanel

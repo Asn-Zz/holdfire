@@ -1,6 +1,6 @@
 "use client"
 
-import { Sparkles } from "lucide-react"
+import { Sparkles, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -24,7 +24,11 @@ export function Header({ onOpenThesaurus }: HeaderProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <a href="https://github.com/Asn-Zz/holdfire" target="_blank" className="text-xs text-muted-foreground">
+              <Github className="h-4 w-4" />
+            </a>
             <ThemeToggle />
+
             <Button variant="outline" onClick={onOpenThesaurus}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"

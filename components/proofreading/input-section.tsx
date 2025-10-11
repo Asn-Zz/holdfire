@@ -167,7 +167,7 @@ export function InputSection({
 
   return (
     <>
-      <Card className="mb-8">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-2">
