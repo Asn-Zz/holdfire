@@ -14,8 +14,8 @@ import fetchSSE from "@/lib/fetchSSE"
 
 export const DEFAULT_CONFIG: ProofreadingConfig = {
   apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL || 'https://text.pollinations.ai/openai',
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || 'your_api_key',
-  model: process.env.NEXT_PUBLIC_OPENAI_MODEL    || 'gemini',
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
+  model: process.env.NEXT_PUBLIC_OPENAI_MODEL    || 'openai',
   firecrawlKey: process.env.NEXT_PUBLIC_FIRE_KEY || '',
   customPrompt: "你是一个专业的文章校对编辑，擅长发现并修正中文语法、拼写错误，同时保持原文风格。",
 }
@@ -25,7 +25,7 @@ const DEFAULT_THESAURUS: ThesaurusGroup[] = [
     id: "default",
     name: "默认",
     enabled: true,
-    corrections: [],
+    corrections: [{ original: "老师", suggestion: "教师" }],
   },
 ]
 
