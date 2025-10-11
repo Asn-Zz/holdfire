@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { ProofreadingConfig } from "@/types/proofreading"
 import { Save, RotateCcw } from "lucide-react"
 import { DEFAULT_CONFIG } from "@/hooks/use-proofreading"
+import { useLocalStorage } from "@/hooks/use-localStorage"
 
 interface ConfigPanelProps {
   open: boolean
@@ -22,17 +23,17 @@ interface ConfigPanelProps {
 export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: ConfigPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [tempConfig, setTempConfig] = useState({ ...config });
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [availableModels, setAvailableModels] = useLocalStorage<string[]>('availableModels', []);
 
   const fetchOpenAIModels = async () => {
     if (isLoading) return;
     try {
       setIsLoading(true);
-      const [modelUrl] = config.apiUrl.split('/chat');
+      const [modelUrl] = tempConfig.apiUrl.split('/chat');
       const response = await fetch(`${modelUrl}/models`, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${tempConfig.apiKey}`,
         },
       }); 
 
@@ -42,7 +43,7 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
       if (res.data) {
         const models = res.data.map((m: Record<string, unknown>) => m.id || m.root || "");
         setAvailableModels(models);
-        if (models.length > 0 && !models.includes(config.model)) {
+        if (models.length > 0 && !models.includes(tempConfig.model)) {
           setTempConfig({ ...tempConfig, model: models[0] });
         }
 
@@ -112,6 +113,21 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
               )}
               {tempConfig.apiUrl && tempConfig.apiKey && <Button onClick={fetchOpenAIModels} disabled={isLoading} className="disabled:opacity-50">获取</Button>}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center justify-between" htmlFor="firecrawlKey">
+              <span>firecrawl Key（可选）</span>
+              <a href="https://firecrawl.dev" target="_blank" className="text-xs text-primary">获取链接</a>
+            </Label>
+
+            <Input
+              id="firecrawlKey"
+              type="password"
+              value={tempConfig.firecrawlKey}
+              onChange={(e) => setTempConfig({ ...tempConfig, firecrawlKey: e.target.value })}
+              placeholder="fc-..."
+            />
           </div>
 
           <div className="space-y-2">

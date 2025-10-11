@@ -26,14 +26,9 @@ export function HistoryDialog({ open, onOpenChange, history, onRestore, onDelete
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle>检查历史</DialogTitle>
-              <DialogDescription>查看和恢复之前的校对记录</DialogDescription>
+              <DialogTitle className="mb-1">检查历史 <span className="text-xs text-destructive cursor-pointer" onClick={onClearAll}>(清空全部)</span></DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">查看和恢复之前的校对记录</DialogDescription>
             </div>
-            {history.length > 0 && (
-              <Button variant="destructive" size="sm" onClick={onClearAll}>
-                清空全部
-              </Button>
-            )}
           </div>
         </DialogHeader>
 

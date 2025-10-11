@@ -16,7 +16,7 @@ export interface ProofreadingConfig {
   apiUrl: string
   apiKey: string
   model: string
-  intensity: "gentle" | "moderate" | "strict"
+  firecrawlKey: string
   customPrompt: string
 }
 

@@ -11,8 +11,10 @@ import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
 import { FilePreviewCard } from "./file-preview-card"
 import { useToast } from "@/hooks/use-toast"
+import type { ProofreadingConfig } from "@/types/proofreading"
 
 interface InputSectionProps {
+  config: ProofreadingConfig
   inputText: string
   setInputText: (text: string) => void
   wordCount: number
@@ -25,6 +27,7 @@ interface InputSectionProps {
 }
 
 export function InputSection({
+  config,
   inputText,
   setInputText,
   wordCount,
@@ -109,7 +112,7 @@ export function InputSection({
   const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData('text');
     const urlRegex = /^(https|http):\/\/[^\s/$.?#].[^\s]*$/i;
-    const apiKey = process.env.NEXT_PUBLIC_FIRE_KEY;
+    const apiKey = config.firecrawlKey || process.env.NEXT_PUBLIC_FIRE_KEY;    
     
     if (urlRegex.test(pastedText) && apiKey) {
       event.preventDefault();
@@ -241,7 +244,7 @@ export function InputSection({
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={onClear} className="text-destructive hover:text-destructive">
+              <Button variant="ghost" onClick={() => { onClear(); removeFile() }} className="text-destructive hover:text-destructive">
                 清空
               </Button>
               <Button onClick={onCheck} disabled={isLoading || !inputText.trim()}>

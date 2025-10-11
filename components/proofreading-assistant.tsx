@@ -30,6 +30,7 @@ export function ProofreadingAssistant() {
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <InputSection
+          config={proofreading.config}
           inputText={proofreading.inputText}
           setInputText={proofreading.setInputText}
           wordCount={proofreading.wordCount}

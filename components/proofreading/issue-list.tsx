@@ -43,7 +43,7 @@ export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUn
               }`}
             >
               <div className="flex items-start gap-3">
-                <Badge variant="outline" className={`${style.bg} ${style.text} ${style.border} border`}>
+                <Badge variant="outline" className={`${style.bg} ${style.text} ${style.border} border w-[65px]`}>
                   {issue.fixed ? "已修复" : issue.ignored ? "已忽略" : issue.category}
                 </Badge>
 

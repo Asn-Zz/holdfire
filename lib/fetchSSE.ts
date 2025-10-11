@@ -14,7 +14,7 @@ export default async function fetchSSE(
             Authorization: `Bearer ${config.apiKey}`,
             "Content-Type": "application/json",
         },
-            body: JSON.stringify({
+        body: JSON.stringify({
             model: config.model,
             messages: [
                 { role: "system", content: config.customPrompt },
@@ -50,7 +50,7 @@ export default async function fetchSSE(
                 if (jsonLine === "[DONE]") continue;
 
                 const data = JSON.parse(jsonLine)
-                content += data.choices[0].delta.content
+                content += data.choices[0]?.delta?.content || ''
                 onChunk(content)
             }
         }
