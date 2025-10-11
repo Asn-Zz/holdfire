@@ -12,6 +12,7 @@ import { request } from "@/lib/request"
 import { FilePreviewCard } from "./file-preview-card"
 import { useToast } from "@/hooks/use-toast"
 import type { ProofreadingConfig } from "@/types/proofreading"
+import fetchSSE from "@/lib/fetchSSE"
 
 interface InputSectionProps {
   config: ProofreadingConfig
@@ -141,6 +142,29 @@ export function InputSection({
     }
   }
 
+  const handleTransferFile = async (text: string) => {
+    setIsParsingFile(true)
+
+    try {
+      const customPrompt = '请将以下文本转换为markdown格式：\n\n'
+      const payload = { ...config, customPrompt, inputText: text }
+      const { content } = await fetchSSE(payload)
+
+      const file = new File([content], `${uploadedFile}.md`, { type: 'text/markdown' });
+      handleFileUpload({ target: { files: [file] } } as any);
+    } catch (error: any) {
+      console.error("[v0] Error transferring file:", error);
+
+      toast({
+        title: "文件解析失败",
+        description: error instanceof Error ? error.message : "无法解析文件",
+        variant: "destructive",
+      })
+    } finally {
+      setIsParsingFile(false);
+    }
+  }
+
   return (
     <>
       <Card className="mb-8">
@@ -149,9 +173,9 @@ export function InputSection({
             <span className="flex items-center gap-2">
               <Edit className="h-5 w-5 text-primary" />输入文本
             </span>
-            <span className="text-xs text-muted-foreground">
+            <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-muted-foreground">
               支持粘贴链接抓取
-            </span>
+            </a>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -287,9 +311,9 @@ export function InputSection({
 
       <FilePreviewCard
         open={previewOpen}
-        onOpenChange={setPreviewOpen}
         file={parsedFile}
         onConfirm={handleConfirmFile}
+        onTransfer={handleTransferFile}
       />
     </>
   )

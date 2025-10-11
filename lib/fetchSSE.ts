@@ -2,13 +2,13 @@ import type { ProofreadingConfig } from "@/types/proofreading"
 
 interface fetchSSEParams extends ProofreadingConfig {
     inputText: string,
-    controller: AbortController,
-    onChunk: (chunk: string) => void,
+    controller?: AbortController,
+    onChunk?: (chunk: string) => void,
 }
 
 export default async function fetchSSE(config: fetchSSEParams) {
     const startTime = new Date();
-    const signal = config.controller.signal
+    const signal = (config.controller || new AbortController()).signal
     const response = await fetch(config.apiUrl, {
         method: "POST",
         headers: {
@@ -54,7 +54,7 @@ export default async function fetchSSE(config: fetchSSEParams) {
 
                 const data = JSON.parse(jsonLine)
                 content += data.choices[0]?.delta?.content || ''
-                config?.onChunk(content)
+                config?.onChunk?.(content)
             }
         }
     }

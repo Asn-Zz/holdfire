@@ -4,27 +4,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { FileText, List } from "lucide-react"
+import { FileText, List, Loader2 } from "lucide-react"
 import type { ParsedFile, Chapter } from "@/lib/file-parser"
 import { useState, useEffect, useRef } from "react"
 
 interface FilePreviewCardProps {
   open: boolean
-  onOpenChange: (open: boolean) => void
   file: ParsedFile | null
-  onConfirm: (text?: string) => void
+  onConfirm: (text: string) => void
+  onTransfer: (text: string) => Promise<void>
 }
 
-export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePreviewCardProps) {
+export function FilePreviewCard({ open, file, onConfirm, onTransfer }: FilePreviewCardProps) {
   const previewRef = useRef<HTMLDivElement>(null);
+  const [isTransferring, setIsTransferring] = useState(false)
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
   const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
 
   useEffect(() => {
     if (file) {
+      const fallbackChapter: Chapter = {
+        id: 'chapter-full',
+        title: '全文（纯文本）',
+        content: file.text,
+      };
+
       // Use pre-extracted chapters from the parsed file or extract them if not available
-      const fileChapters = file.chapters || [];
+      const fileChapters = [fallbackChapter, ...(file.chapters || [])];
       setChapters(fileChapters);
       
       // Select the first chapter by default
@@ -32,16 +39,6 @@ export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePre
         const firstChapter = fileChapters[0];
         setSelectedChapter(firstChapter);
         setActiveChapterId(firstChapter.id);
-      } else if (file.text) {
-        // Fallback: if no chapters exist but we have text, create a single chapter for the full text
-        const fallbackChapter: Chapter = {
-          id: 'chapter-full',
-          title: '全文',
-          content: file.text,
-        };
-        setChapters([fallbackChapter]);
-        setSelectedChapter(fallbackChapter);
-        setActiveChapterId(fallbackChapter.id);
       }
     } else {
       setChapters([]);
@@ -49,6 +46,15 @@ export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePre
       setActiveChapterId(null);
     }
   }, [file]);
+
+  const onTransferFile = () => {
+    const innerText = previewRef.current?.innerText || ''
+
+    setIsTransferring(true)
+    onTransfer(innerText).finally(() => {
+      setIsTransferring(false)
+    })
+  }
 
   if (!file) return null;
 
@@ -58,8 +64,7 @@ export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePre
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          文件预览
+          <FileText className="h-5 w-5" /> 文件预览
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -101,8 +106,9 @@ export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePre
 
             {/* Right column - Chapter content */}
             <div className="w-3/4 flex flex-col border rounded-md">
-              <div className="p-3 border-b bg-muted/30">
+              <div className="flex items-center justify-between p-3 border-b bg-muted/30">
                 <h3 className="font-medium line-clamp-2">{selectedChapter?.title || '选择一个章节'}</h3>
+                <span className="text-xs text-muted-foreground">{selectedChapter?.content.length} 字符</span>
               </div>
               <ScrollArea className="flex-1 p-4">
                 <div ref={previewRef} className="whitespace-pre-wrap font-sans text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedChapter?.content || "请选择左侧的章节进行预览" }} />
@@ -112,21 +118,16 @@ export function FilePreviewCard({ open, onOpenChange, file, onConfirm }: FilePre
 
           {/* Actions */}
           <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              style={{display: chapters.length > 1 ? "block" : "none"}}
-              onClick={() => {
-                onConfirm();
-              }}
-            >
-              全部
-            </Button>
+            {file.metadata.fileType !== 'md' && <Button onClick={onTransferFile} disabled={isTransferring} className="disabled:opacity-50">
+              {isTransferring ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 转换中...</> : '转 Markdown'}
+            </Button>}
+
             <Button
               onClick={() => {
-                onConfirm(previewRef.current?.innerText);
+                onConfirm(previewRef.current?.innerText || '');
               }}
             >
-              使用此章节
+              选择当前文本
             </Button>
           </div>
         </div>

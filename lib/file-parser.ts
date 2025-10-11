@@ -174,15 +174,6 @@ const extractChapters = (text: string): Chapter[] => {
     chapters.push(currentChapter);
   }
   
-  // If no chapters were found, create a default chapter with the full text
-  if (chapters.length === 0 && text.trim()) {
-    return [{
-      id: 'chapter-1',
-      title: '全文',
-      content: text
-    }];
-  }
-  
   return chapters;
 };
 

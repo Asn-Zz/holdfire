@@ -155,9 +155,9 @@ export function ResultSection({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-muted-foreground">问题列表</h3>
-            <span className="text-xs text-muted-foreground">
+            {analyze.tokens && <span className="text-xs text-muted-foreground">
               {`首字: ${analyze?.firstTime}S ｜ 总耗时: ${analyze?.allTime}S ｜ 词数: ${analyze?.tokens}`}
-            </span>
+            </span>}
           </div>
 
           <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as IssueCategory | "all")}>

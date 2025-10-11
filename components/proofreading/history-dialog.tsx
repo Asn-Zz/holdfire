@@ -53,18 +53,12 @@ export function HistoryDialog({ open, onOpenChange, history, onRestore, onDelete
                       <span>{formatDate(entry.timestamp)}</span>
                       <span>字数：{entry.text.length}</span>
                       <span>问题：{entry.issues.filter((i) => !i.ignored).length}</span>
+              
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDelete(entry)
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+
+                    <div className="flex items-center gap-4">
+                      <Trash2 onClick={(e) => { e.stopPropagation(); onDelete(entry) }} className="h-4 w-4 text-destructive hover:text-destructive/80" />
+                    </div>
                   </div>
                   <p className="text-sm text-foreground line-clamp-2">{entry.text}</p>
                 </div>
