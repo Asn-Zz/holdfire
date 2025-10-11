@@ -30,6 +30,7 @@ export function ProofreadingAssistant() {
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <InputSection
+          abortCheck={proofreading.abortCheck}
           config={proofreading.config}
           inputText={proofreading.inputText}
           setInputText={proofreading.setInputText}
@@ -53,6 +54,7 @@ export function ProofreadingAssistant() {
           <ResultSection
             inputText={proofreading.inputText}
             issues={proofreading.issues}
+            analyze={proofreading.analyze}
             onAcceptSuggestion={proofreading.acceptSuggestion}
             onIgnoreSuggestion={proofreading.ignoreSuggestion}
             onUnignoreSuggestion={proofreading.unignoreSuggestion}

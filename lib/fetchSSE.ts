@@ -1,13 +1,14 @@
 import type { ProofreadingConfig } from "@/types/proofreading"
 
-export default async function fetchSSE(
-    config: ProofreadingConfig,
+interface fetchSSEParams extends ProofreadingConfig {
     inputText: string,
+    controller: AbortController,
     onChunk: (chunk: string) => void,
-) {
-    const controller = new AbortController()
-    const signal = controller.signal
+}
 
+export default async function fetchSSE(config: fetchSSEParams) {
+    const startTime = new Date();
+    const signal = config.controller.signal
     const response = await fetch(config.apiUrl, {
         method: "POST",
         headers: {
@@ -18,7 +19,7 @@ export default async function fetchSSE(
             model: config.model,
             messages: [
                 { role: "system", content: config.customPrompt },
-                { role: "user", content: inputText },
+                { role: "user", content: config.inputText },
             ],
             stream: true,
             temperature: 0.1,
@@ -37,6 +38,7 @@ export default async function fetchSSE(
     }
 
     let content = ""
+    let analyze = { firstTime: "", allTime: "", tokens: 0 };
     while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -44,6 +46,7 @@ export default async function fetchSSE(
         const chunk = new TextDecoder().decode(value)
         const lines = chunk.split("\n")
 
+        analyze.firstTime = analyze.firstTime || ((new Date().getTime() - startTime.getTime()) / 1000).toFixed(2)
         for (const line of lines) {
             if (line.startsWith("data: ")) {
                 const jsonLine = line.slice(6)
@@ -51,13 +54,16 @@ export default async function fetchSSE(
 
                 const data = JSON.parse(jsonLine)
                 content += data.choices[0]?.delta?.content || ''
-                onChunk(content)
+                config?.onChunk(content)
             }
         }
     }
 
+    analyze.allTime = ((new Date().getTime() - startTime.getTime()) / 1000).toFixed(2)
+    analyze.tokens = content.length
+
     return {
         content,
-        abort: () => controller.abort(),
+        analyze,
     }
 }

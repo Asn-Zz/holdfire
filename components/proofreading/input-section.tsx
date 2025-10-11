@@ -23,6 +23,7 @@ interface InputSectionProps {
   onClear: () => void
   onLoadExample: () => void
   onOpenConfig: () => void
+  abortCheck: () => void
   charCount: number
 }
 
@@ -36,6 +37,7 @@ export function InputSection({
   onClear,
   onLoadExample,
   onOpenConfig,
+  abortCheck,
   charCount,
 }: InputSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -244,9 +246,14 @@ export function InputSection({
             </div>
 
             <div className="flex items-center gap-3">
+              {isLoading ? 
+              <Button variant="ghost" onClick={abortCheck} className="text-destructive hover:text-destructive">
+                停止
+              </Button> : 
               <Button variant="ghost" onClick={() => { onClear(); removeFile() }} className="text-destructive hover:text-destructive">
                 清空
               </Button>
+              }
               <Button onClick={onCheck} disabled={isLoading || !inputText.trim()}>
                 {isLoading ? (
                   <>

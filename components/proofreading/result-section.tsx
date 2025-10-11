@@ -13,6 +13,7 @@ import { IssueList } from "./issue-list"
 interface ResultSectionProps {
   inputText: string
   issues: Issue[]
+  analyze: Record<string, any>
   onAcceptSuggestion: (id: number) => void
   onIgnoreSuggestion: (id: number) => void
   onUnignoreSuggestion: (id: number) => void
@@ -32,6 +33,7 @@ const CATEGORIES: { value: IssueCategory | "all"; label: string }[] = [
 export function ResultSection({
   inputText,
   issues,
+  analyze,
   onAcceptSuggestion,
   onIgnoreSuggestion,
   onUnignoreSuggestion,
@@ -154,12 +156,12 @@ export function ResultSection({
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-muted-foreground">问题列表</h3>
             <span className="text-xs text-muted-foreground">
-              选中词语查看更多
+              {`首字: ${analyze?.firstTime}S ｜ 总耗时: ${analyze?.allTime}S ｜ 词数: ${analyze?.tokens}`}
             </span>
           </div>
 
           <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as IssueCategory | "all")}>
-            <TabsList className="w-full justify-start">
+            <TabsList className="w-full justify-start overflow-y-auto bg-muted scrollbar-hide">
               {CATEGORIES.map((cat) => (
                 <TabsTrigger key={cat.value} value={cat.value} className="flex items-center gap-2">
                   {cat.label}

@@ -43,6 +43,8 @@ export function useProofreading() {
   const [showResults, setShowResults] = useState(false)
   const [issues, setIssues] = useState<Issue[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
+  const [analyze, setAnalyze] = useState<any>({})
+  const [controller, setController] = useState<AbortController | null>(null)
   const [config, setConfig] = useLocalStorage<ProofreadingConfig>("config", DEFAULT_CONFIG)
   const [history, setHistory] = useLocalStorage<HistoryEntry[]>("history", [])
   const [thesauruses, setThesauruses] = useLocalStorage<ThesaurusGroup[]>("thesauruses", DEFAULT_THESAURUS)  
@@ -108,12 +110,15 @@ ${text}
     setIssues([])
     setApiError(null)
     setWordCount(0)
+    setController(null)
 
     try {
+      const controller = new AbortController()
+      setController(controller)
       const prompt = createPrompt(inputText)
-      const { content } = await fetchSSE(config, prompt, (chunk) => {
-        setWordCount(chunk.length)
-      })
+      const payload = { ...config, controller, inputText: prompt, onChunk: (chunk: string) => setWordCount(chunk.length)}
+      const { content, analyze: analyzeData } = await fetchSSE(payload)
+      setAnalyze(analyzeData)
       
       const responseContent = content.replace(/^```json\s*|```$/g, "").trim()
       let parsedIssues = []
@@ -169,7 +174,14 @@ ${text}
       setShowResults(false)
     } finally {
       setIsLoading(false)
+      setController(null)
     }
+  }
+
+  const abortCheck = () => {
+    controller?.abort()
+    setIsLoading(false)
+    setWordCount(0)
   }
 
   const applyFixesToInputText = (fixesToApply: Issue[]) => {
@@ -277,6 +289,8 @@ ${text}
     showResults,
     issues,
     apiError,
+    abortCheck,
+    analyze,
     config,
     history,
     thesauruses,
