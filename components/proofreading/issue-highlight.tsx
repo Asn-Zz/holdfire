@@ -199,8 +199,7 @@ export function IssueHighlight({
           content: "";
           position: absolute;
           top: calc(100% - 1px);
-          left: 50%;
-          transform: translateX(-50%);
+          left: 10%;
           border: 6px solid transparent;
           border-top-color: white;
         }

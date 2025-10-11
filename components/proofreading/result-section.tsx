@@ -111,7 +111,7 @@ export function ResultSection({
           <div
             className={`p-4 rounded-lg border ${unfixedCount > 0 ? "bg-yellow-500/10 border-yellow-500/20" : "bg-green-500/10 border-green-500/20"}`}
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               {unfixedCount > 0 ? (
                 <AlertCircle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
               ) : (
@@ -122,12 +122,11 @@ export function ResultSection({
                   <p className="text-sm text-foreground">
                     共发现 <span className="font-semibold">{activeIssues.length}</span> 个问题，还有{" "}
                     <span className="font-semibold">{unfixedCount}</span> 个待处理。
-                    将鼠标悬停在下方高亮文本上查看并接受修改建议。
+                    将鼠标悬停在下方高亮文本上查看修改建议，修改后更新到上方输入框。
                   </p>
                 ) : (
                   <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" />
-                    太棒了！所有问题都已修复。
+                    太棒了！所有问题都已修复。最终文本已更新到上方输入框。
                   </p>
                 )}
               </div>
