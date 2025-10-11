@@ -24,9 +24,12 @@ export function Header({ onOpenThesaurus }: HeaderProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <a href="https://github.com/Asn-Zz/holdfire" target="_blank" className="text-xs text-muted-foreground">
-              <Github className="h-4 w-4" />
-            </a>
+            <Button variant="ghost" size="icon">
+              <a href="https://github.com/Asn-Zz/holdfire" target="_blank">
+                <Github className="h-4 w-4" />
+              </a>
+            </Button>
+
             <ThemeToggle />
 
             <Button variant="outline" onClick={onOpenThesaurus}>
