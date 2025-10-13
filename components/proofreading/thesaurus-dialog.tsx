@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { ThesaurusGroup, Correction } from "@/types/proofreading"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Edit } from "lucide-react"
 
 interface ThesaurusDialogProps {
   open: boolean
@@ -18,6 +18,7 @@ interface ThesaurusDialogProps {
   onToggleGroup: (id: string) => void
   onAddCorrection: (groupId: string, correction: Correction) => void
   onDeleteCorrection: (groupId: string, original: string) => void
+  onEditCorrection: (groupId: string, original: string, updatedCorrection: Correction) => void
 }
 
 export function ThesaurusDialog({
@@ -29,11 +30,13 @@ export function ThesaurusDialog({
   onToggleGroup,
   onAddCorrection,
   onDeleteCorrection,
+  onEditCorrection,
 }: ThesaurusDialogProps) {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(thesauruses[0]?.id || null)
   const [newGroupName, setNewGroupName] = useState("")
   const [newOriginal, setNewOriginal] = useState("")
   const [newSuggestion, setNewSuggestion] = useState("")
+  const [editingCorrection, setEditingCorrection] = useState<{ original: string; suggestion: string } | null>(null)
 
   const selectedGroup = thesauruses.find((g) => g.id === selectedGroupId)
 
@@ -46,13 +49,33 @@ export function ThesaurusDialog({
 
   const handleAddCorrection = () => {
     if (newOriginal.trim() && newSuggestion.trim() && selectedGroupId) {
-      onAddCorrection(selectedGroupId, {
-        original: newOriginal.trim(),
-        suggestion: newSuggestion.trim(),
-      })
+      if (editingCorrection) {
+        onEditCorrection(selectedGroupId, editingCorrection.original, {
+          original: newOriginal.trim(),
+          suggestion: newSuggestion.trim(),
+        })
+        setEditingCorrection(null)
+      } else {
+        onAddCorrection(selectedGroupId, {
+          original: newOriginal.trim(),
+          suggestion: newSuggestion.trim(),
+        })
+      }
       setNewOriginal("")
       setNewSuggestion("")
     }
+  }
+
+  const startEditCorrection = (original: string, suggestion: string) => {
+    setNewOriginal(original)
+    setNewSuggestion(suggestion)
+    setEditingCorrection({ original, suggestion })
+  }
+
+  const cancelEditCorrection = () => {
+    setNewOriginal("")
+    setNewSuggestion("")
+    setEditingCorrection(null)
   }
 
   return (
@@ -118,7 +141,7 @@ export function ThesaurusDialog({
           {/* Right Panel: Corrections */}
           <div className="col-span-8 space-y-4">
             {selectedGroup ? (
-              <>
+              <div className="h-full flex flex-col gap-4">
                 <div className="p-4 rounded-lg border border-border space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <Input value={newOriginal} onChange={(e) => setNewOriginal(e.target.value)} placeholder="原词" />
@@ -129,13 +152,29 @@ export function ThesaurusDialog({
                       placeholder="建议词"
                     />
                   </div>
-                  <Button onClick={handleAddCorrection} className="w-full">
-                    <Plus className="h-4 w-4 mr-2" />
-                    添加词对
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={handleAddCorrection} className="flex-1">
+                      {editingCorrection ? (
+                        <>
+                          <Edit className="h-4 w-4 mr-2" />
+                          更新词对
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          添加词对
+                        </>
+                      )}
+                    </Button>
+                    {editingCorrection && (
+                      <Button variant="outline" onClick={cancelEditCorrection} className="flex-1">
+                        取消
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
-                <ScrollArea className="h-[480px] rounded-lg border border-border">
+                <ScrollArea className="flex-1 rounded-lg border border-border">
                   <div className="divide-y divide-border">
                     {selectedGroup.corrections.map((correction, index) => (
                       <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/50">
@@ -144,6 +183,15 @@ export function ThesaurusDialog({
                           <span className="font-medium text-primary">{correction.suggestion}</span>
                         </span>
                         <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => startEditCorrection(correction.original, correction.suggestion)}
+                          >
+                            <Edit className="h-4 w-4 text-primary" />
+                          </Button>
+
                           <Button
                             variant="ghost"
                             size="icon"
@@ -157,7 +205,7 @@ export function ThesaurusDialog({
                     ))}
                   </div>
                 </ScrollArea>
-              </>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border rounded-lg">
                 <p>请先在左侧选择或创建一个词库分组</p>

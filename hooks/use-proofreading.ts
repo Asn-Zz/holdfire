@@ -281,6 +281,20 @@ ${text}
     )
   }
 
+  const editCorrection = (groupId: string, original: string, updatedCorrection: Correction) => {
+    setThesauruses((prev) =>
+      prev.map((g) => {
+        if (g.id === groupId) {
+          const updatedCorrections = g.corrections.map((c) => 
+            c.original === original ? updatedCorrection : c
+          )
+          return { ...g, corrections: updatedCorrections }
+        }
+        return g
+      }),
+    )
+  }
+
   return {
     inputText,
     setInputText,
@@ -314,5 +328,6 @@ ${text}
     toggleThesaurusGroup,
     addCorrection,
     deleteCorrection,
+    editCorrection,
   }
 }

@@ -94,6 +94,7 @@ export function ProofreadingAssistant() {
         onToggleGroup={proofreading.toggleThesaurusGroup}
         onAddCorrection={proofreading.addCorrection}
         onDeleteCorrection={proofreading.deleteCorrection}
+        onEditCorrection={proofreading.editCorrection}
       />
 
       {/* Floating History Button */}

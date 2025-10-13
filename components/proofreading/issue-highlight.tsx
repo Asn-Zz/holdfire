@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
-import { X, BookOpen, Search } from "lucide-react"
+import { X, Languages, BookOpen, Search } from "lucide-react"
 import eventBus from "@/lib/eventBus"
 
 interface IssueHighlightProps {
@@ -109,7 +109,7 @@ export function IssueHighlight({
                     className="px-4 py-2 border-r border-gray-100 hover:bg-gray-100"  
                     title="近义词查询"
                 >
-                    <BookOpen className="w-4 h-4 text-green-500" /> 
+                    <Languages className="w-4 h-4 text-green-500" /> 
                 </a>
 
                 <a 
@@ -127,20 +127,7 @@ export function IssueHighlight({
                     className="px-4 py-2 hover:bg-gray-100"
                     title="打开词库"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-4 h-4 mr-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-                    />
-                  </svg>
+                  <BookOpen className="w-4 h-4 text-blue-500" />
                 </button>
             </div>
         )}
