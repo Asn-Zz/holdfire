@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { ProofreadingConfig } from "@/types/proofreading"
-import { Save, RotateCcw } from "lucide-react"
+import { Save, RotateCcw, Lock, Eye, EyeClosed } from "lucide-react"
 import { DEFAULT_CONFIG } from "@/hooks/use-proofreading"
 import { useLocalStorage } from "@/hooks/use-localStorage"
 
 interface ConfigPanelProps {
+  authCode: string
   open: boolean
   onOpenChange: (open: boolean) => void
   config: ProofreadingConfig
@@ -20,9 +21,10 @@ interface ConfigPanelProps {
   onReset: () => void
 }
 
-export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: ConfigPanelProps) {
+export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onReset }: ConfigPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [tempConfig, setTempConfig] = useState({ ...config });
+  const [keyVisible, setKeyVisible] = useState(false)
   const [availableModels, setAvailableModels] = useLocalStorage<string[]>('availableModels', []);
 
   const fetchOpenAIModels = async () => {
@@ -46,8 +48,6 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
         if (models.length > 0 && !models.includes(tempConfig.model)) {
           setTempConfig({ ...tempConfig, model: models[0] });
         }
-
-        return models;
       }
     } catch (error) {
       console.error('获取模型列表失败:', error);
@@ -56,12 +56,34 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
     }
   };
 
+  const handleAuthAdmin = async () => {
+    if (isLoading) return;
+    const code = authCode || window.prompt("请输入访问密码")
+    if (code !== process.env.NEXT_PUBLIC_AUTH_TOKEN) { return }
+
+    setIsLoading(true);
+    try {      
+      const res = await fetch(process.env.NEXT_PUBLIC_CONFIG_URL || '')
+      const data = await res.json()
+      setTempConfig(data)
+      fetchOpenAIModels()
+    } catch (error) {
+      console.error('获取配置失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (authCode) handleAuthAdmin()
+  }, [authCode])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>校对配置</DialogTitle>
-          <DialogDescription>配置 AI 校对 API 和校对参数</DialogDescription>
+          <DialogDescription>标准 OpenAI API 格式</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -78,13 +100,19 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
           <div className="space-y-2">
             <Label htmlFor="apiKey">API Key</Label>
 
-            <Input
-              id="apiKey"
-              type="password"
-              value={tempConfig.apiKey}
-              onChange={(e) => setTempConfig({ ...tempConfig, apiKey: e.target.value })}
-              placeholder="sk-..."
-            />
+            <div className="relative flex gap-2">
+              <Input
+                id="apiKey"
+                type={keyVisible ? "text" : "password"}
+                value={tempConfig.apiKey}
+                onChange={(e) => setTempConfig({ ...tempConfig, apiKey: e.target.value })}
+                placeholder="sk-..."
+              />
+
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-primary" onClick={() => setKeyVisible(!keyVisible)}>
+                {keyVisible ? <EyeClosed className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -111,23 +139,53 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
                   placeholder="gpt-3.5-turbo"
                 />
               )}
-              {tempConfig.apiUrl && tempConfig.apiKey && <Button onClick={fetchOpenAIModels} disabled={isLoading} className="disabled:opacity-50">获取</Button>}
+              {tempConfig.apiUrl && tempConfig.apiKey && 
+                <Button 
+                  onClick={fetchOpenAIModels} 
+                  disabled={isLoading} 
+                  className="disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  获取列表
+                </Button>
+              }
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="flex items-center justify-between" htmlFor="firecrawlKey">
-              <span>firecrawl Key（可选）</span>
-              <a href="https://firecrawl.dev" target="_blank" className="text-xs text-primary">获取链接</a>
-            </Label>
+          <div className="space-y-2 grid grid-cols-2 gap-2">
+            <div className="space-y-2">
+              <Label className="flex items-center justify-between" htmlFor="firecrawlKey">
+                <span>firecrawl Key（可选）</span>
+                <a href="https://firecrawl.dev" target="_blank" className="text-xs text-primary">获取链接</a>
+              </Label>
 
-            <Input
-              id="firecrawlKey"
-              type="password"
-              value={tempConfig.firecrawlKey}
-              onChange={(e) => setTempConfig({ ...tempConfig, firecrawlKey: e.target.value })}
-              placeholder="fc-..."
-            />
+              <Input
+                id="firecrawlKey"
+                type="password"
+                value={tempConfig.firecrawlKey}
+                onChange={(e) => setTempConfig({ ...tempConfig, firecrawlKey: e.target.value })}
+                placeholder="fc-..."
+              />
+
+              <p className="text-xs text-muted-foreground">用于解析链接，获取文章内容</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="flex items-center justify-between" htmlFor="pollinationsKey">
+                <span>pollinations Key（可选）</span>
+                <a href="https://auth.pollinations.ai" target="_blank" className="text-xs text-primary">获取链接</a>
+              </Label>
+
+              <Input
+                id="pollinationsKey"
+                type="password"
+                value={tempConfig.pollinationsKey}
+                onChange={(e) => setTempConfig({ ...tempConfig, pollinationsKey: e.target.value })}
+                placeholder="xxxx_xxxx"
+              />
+
+              <p className="text-xs text-muted-foreground">多模态支持，提供图片、音频、搜索等功能</p>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -142,25 +200,37 @@ export function ConfigPanel({ open, onOpenChange, config, onSave, onReset }: Con
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" 
-            onClick={() => {
-              setTempConfig(DEFAULT_CONFIG)
-              onReset()
-            }}
+        <div className="flex justify-between gap-2">
+          <Button onClick={handleAuthAdmin}
+            disabled={isLoading}
+            className="disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            恢复默认
+            <Lock className="h-4 w-4" />
+            访问密码
           </Button>
-          <Button
-            onClick={() => {
-              onSave(tempConfig)
-              onOpenChange(false)
-            }}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            保存配置
-          </Button>
+
+          <div className="flex gap-2">
+            <Button variant="outline" 
+              onClick={() => {
+                setTempConfig(DEFAULT_CONFIG)
+                onReset()
+              }}
+            >
+              <RotateCcw className="h-4 w-4" />
+              恢复默认
+            </Button>
+            <Button
+              onClick={() => {
+                onSave(tempConfig)
+                onOpenChange(false)
+              }}
+              disabled={isLoading}
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Save className="h-4 w-4" />
+              保存配置
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

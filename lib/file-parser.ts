@@ -1,6 +1,7 @@
 // File parsing utilities for Word, PDF, and text files
 
 import { fileToBase64 } from "./utils";
+import type { ProofreadingConfig } from "@/types/proofreading"
 
 export interface Chapter {
   id: string;
@@ -121,14 +122,16 @@ export async function parseText(file: File): Promise<ParsedFile> {
 /**
  * Parse image to text files
  */
-export async function parseImage(file: File): Promise<ParsedFile> {
+export async function parseImage(file: File, config: ProofreadingConfig): Promise<ParsedFile> {
   try {
     const image_url = await fileToBase64(file)
+    const token = config.pollinationsKey || process.env.NEXT_PUBLIC_POLL_KEY
+
     const response = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_POLL_KEY}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         model: 'gemini',
@@ -165,7 +168,7 @@ export async function parseImage(file: File): Promise<ParsedFile> {
 /**
  * Main file parser that routes to appropriate parser based on file type
  */
-export async function parseFile(file: File): Promise<ParsedFile> {
+export async function parseFile(file: File, config: ProofreadingConfig): Promise<ParsedFile> {
   const fileName = file.name.toLowerCase()  
 
   if (fileName.endsWith(".docx")) {
@@ -175,7 +178,7 @@ export async function parseFile(file: File): Promise<ParsedFile> {
   } else if (fileName.endsWith(".txt") || fileName.endsWith(".md") || fileName.endsWith(".markdown")) {
     return parseText(file)
   } else if (file.type.startsWith("image/")) {
-    return parseImage(file)
+    return parseImage(file, config)
   } else {
     throw new Error("不支持的文件格式。请上传图片、TXT、MD、DOCX、PDF 文件")
   }

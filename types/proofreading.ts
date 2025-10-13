@@ -17,6 +17,7 @@ export interface ProofreadingConfig {
   apiKey: string
   model: string
   firecrawlKey: string
+  pollinationsKey: string
   customPrompt: string
 }
 

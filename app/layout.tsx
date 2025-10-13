@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <Suspense fallback={<div className="flex items-center justify-center h-screen text-primary">加载中 ... </div>}>{children}</Suspense>
           <Analytics />
           <Toaster />
         </ThemeProvider>

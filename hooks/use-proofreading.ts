@@ -13,10 +13,11 @@ import { useLocalStorage } from "./use-localStorage"
 import fetchSSE from "@/lib/fetchSSE"
 
 export const DEFAULT_CONFIG: ProofreadingConfig = {
-  apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL || 'https://text.pollinations.ai/openai',
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
-  model: process.env.NEXT_PUBLIC_OPENAI_MODEL    || 'openai',
-  firecrawlKey: process.env.NEXT_PUBLIC_FIRE_KEY || '',
+  apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL    || 'https://text.pollinations.ai/openai',
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY    || '',
+  model: process.env.NEXT_PUBLIC_OPENAI_MODEL       || 'openai',
+  firecrawlKey: process.env.NEXT_PUBLIC_FIRE_KEY    || '',
+  pollinationsKey: process.env.NEXT_PUBLIC_POLL_KEY || '',
   customPrompt: "你是一个专业的文章校对编辑，擅长发现并修正中文语法、拼写错误，同时保持原文风格。",
 }
 

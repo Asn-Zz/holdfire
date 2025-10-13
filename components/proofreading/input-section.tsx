@@ -80,7 +80,7 @@ export function InputSection({
     setUploadedFile(file.name)
 
     try {
-      const parsed = await parseFile(file)
+      const parsed = await parseFile(file, config)
       setParsedFile(parsed)
       setPreviewOpen(true)
       setInputText(parsed.text)
@@ -180,7 +180,8 @@ export function InputSection({
     try {
       setLoadingAudio(true)
       const text = `文字转语音：${selectedText}`
-      const response = await fetch(`https://text.pollinations.ai/${text}?model=openai-audio&voice=nova&token=${process.env.NEXT_PUBLIC_POLL_KEY}`)
+      const token = config.pollinationsKey || process.env.NEXT_PUBLIC_POLL_KEY
+      const response = await fetch(`https://text.pollinations.ai/${text}?model=openai-audio&voice=nova&token=${token}`)
       const blob = await response.blob()
       const audioUrl = URL.createObjectURL(blob)
       const audio = new Audio(audioUrl)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Header } from "./proofreading/header"
 import { Footer } from "./proofreading/footer"
 import { InputSection } from "./proofreading/input-section"
@@ -16,13 +17,21 @@ export function ProofreadingAssistant() {
   const [showHistory, setShowHistory] = useState(false)
   const [showThesaurus, setShowThesaurus] = useState(false)
 
+  const router = useRouter()
   const proofreading = useProofreading()
+
+  const authCode = new URL(window.location.href).searchParams.get('code') || ''
 
   useEffect(() => {
     eventBus.on("openThesaurusModal", async (text: string) => {
       setShowThesaurus(true);
       await navigator.clipboard.writeText(text);
     });
+
+    if (authCode) {
+      setShowConfig(true)
+      router.replace('/')
+    }
   }, []);
 
   return (
@@ -69,6 +78,7 @@ export function ProofreadingAssistant() {
       </div>
 
       <ConfigPanel
+        authCode={authCode}
         open={showConfig}
         onOpenChange={setShowConfig}
         config={proofreading.config}
