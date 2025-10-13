@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Header } from "./proofreading/header"
 import { Footer } from "./proofreading/footer"
 import { InputSection } from "./proofreading/input-section"
@@ -20,7 +20,7 @@ export function ProofreadingAssistant() {
   const router = useRouter()
   const proofreading = useProofreading()
 
-  const authCode = new URL(window.location.href).searchParams.get('code') || ''
+  const authCode = useSearchParams().get('code') || ''
 
   useEffect(() => {
     eventBus.on("openThesaurusModal", async (text: string) => {
