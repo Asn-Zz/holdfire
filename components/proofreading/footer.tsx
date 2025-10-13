@@ -1,4 +1,4 @@
-import { Sparkles, File, Book, Database, LockKeyhole, Library } from "lucide-react"
+import { Sparkles, File, Book, Volume2, LockKeyhole, Library } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface FooterInfo {
@@ -24,19 +24,19 @@ const INFOS: FooterInfo[] = [
         icon: Book,
     },
     {
+        title: '语音朗读',
+        description: '支持选中文本后进行朗读',
+        icon: Volume2,
+    },
+    {
         title: '错误分类',
         description: '错误分类清晰，并给出详细建议',
         icon: Library,
     },
     {
         title: '安全可靠',
-        description: '全代码开源，支持本地运行',
+        description: '全量数据本地存储，代码开源，支持本地运行',
         icon: LockKeyhole,
-    },
-    {
-        title: '本地存储',
-        description: '全量数据本地存储',
-        icon: Database,
     }
 ]
 

@@ -58,7 +58,8 @@ NEXT_PUBLIC_OPENAI_API_URL=https://api.example.com/v1/chat/completions
 NEXT_PUBLIC_OPENAI_API_KEY=your_api_key
 NEXT_PUBLIC_OPENAI_MODEL=gpt-3.5-turbo
 
-NEXT_PUBLIC_FIRE_KEY=your_fire_key
+NEXT_PUBLIC_FIRE_KEY=your_firecrawl_key
+NEXT_PUBLIC_POLL_KEY=your_pollinations_key
 ```
 
 ## 📂 项目结构

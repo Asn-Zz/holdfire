@@ -1,5 +1,7 @@
 // File parsing utilities for Word, PDF, and text files
 
+import { fileToBase64 } from "./utils";
+
 export interface Chapter {
   id: string;
   title: string;
@@ -117,10 +119,54 @@ export async function parseText(file: File): Promise<ParsedFile> {
 }
 
 /**
+ * Parse image to text files
+ */
+export async function parseImage(file: File): Promise<ParsedFile> {
+  try {
+    const image_url = await fileToBase64(file)
+    const response = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_POLL_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gemini',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: "text", text: "提取图片中的文字，返回纯文本，不要任何其他信息。" },
+            {
+              type: 'image_url',
+              image_url: { url: image_url },
+            }
+          ],
+        }],
+      }),
+    })
+
+    const data = await response.json()
+    const text = data.choices[0].message.content
+
+    return {
+      text,
+      metadata: {
+        fileName: file.name,
+        fileType: file.name.split(".").pop()?.toLowerCase() || "png",
+        wordCount: text.length,
+      },
+    }
+  } catch (error) {
+    console.error("[v0] Error parsing text file:", error)
+    throw new Error("无法读取文本文件")
+  }
+}
+
+/**
  * Main file parser that routes to appropriate parser based on file type
  */
 export async function parseFile(file: File): Promise<ParsedFile> {
-  const fileName = file.name.toLowerCase()
+  const fileName = file.name.toLowerCase()  
 
   if (fileName.endsWith(".docx")) {
     return parseDocx(file)
@@ -128,8 +174,10 @@ export async function parseFile(file: File): Promise<ParsedFile> {
     return parsePdf(file)
   } else if (fileName.endsWith(".txt") || fileName.endsWith(".md") || fileName.endsWith(".markdown")) {
     return parseText(file)
+  } else if (file.type.startsWith("image/")) {
+    return parseImage(file)
   } else {
-    throw new Error("不支持的文件格式。请上传 TXT, MD, DOCX 或 PDF 文件")
+    throw new Error("不支持的文件格式。请上传图片、TXT、MD、DOCX、PDF 文件")
   }
 }
 

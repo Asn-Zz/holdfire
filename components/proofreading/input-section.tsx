@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit, Volume2 } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -46,6 +46,8 @@ export function InputSection({
   const [parsedFile, setParsedFile] = useState<ParsedFile | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [isParsingFile, setIsParsingFile] = useState(false)
+  const [selectedText, setSelectedText] = useState('')
+  const [loadingAudio, setLoadingAudio] = useState(false)
   const { toast } = useToast()
 
   const handleCopy = async () => {
@@ -57,17 +59,18 @@ export function InputSection({
     })
   }
 
+  const validExtensions = ".png,.jpg,.jpeg,.txt,.md,.markdown,.docx,.pdf"
+  const validExtensionsList = validExtensions.split(",").map((ext) => ext.slice(1).toUpperCase()).join(" ") 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const validExtensions = [".txt", ".md", ".markdown", ".text", ".docx", ".pdf"]
-    const fileExt = "." + file.name.split(".").pop()?.toLowerCase()
+    const fileExt = "." + file.name.split(".").pop()?.toLowerCase()    
 
     if (!validExtensions.includes(fileExt)) {
       toast({
         title: "不支持的文件格式",
-        description: "请上传 TXT, MD, DOCX 或 PDF 文件",
+        description: `请上传 ${validExtensionsList} 格式的文件`,
         variant: "destructive",
       })
       return
@@ -80,7 +83,8 @@ export function InputSection({
       const parsed = await parseFile(file)
       setParsedFile(parsed)
       setPreviewOpen(true)
-
+      setInputText(parsed.text)
+      
       toast({
         title: "文件解析成功",
         description: `已解析 ${parsed.metadata.wordCount} 个字符`,
@@ -165,6 +169,29 @@ export function InputSection({
     }
   }
 
+  const handleTextSelection = () => {
+    const selection = window.getSelection() || '';                                                                   
+    const selectedText = selection.toString().trim();
+    
+    setSelectedText(selectedText)
+  }
+
+  const handleVolumeText = async () => {
+    try {
+      setLoadingAudio(true)
+      const text = `文字转语音：${selectedText}`
+      const response = await fetch(`https://text.pollinations.ai/${text}?model=openai-audio&voice=nova&token=${process.env.NEXT_PUBLIC_POLL_KEY}`)
+      const blob = await response.blob()
+      const audioUrl = URL.createObjectURL(blob)
+      const audio = new Audio(audioUrl)
+      audio.play()  
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoadingAudio(false)
+    }
+  }
+
   return (
     <>
       <Card>
@@ -184,18 +211,31 @@ export function InputSection({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onPaste={handlePaste}
+              onMouseUp={handleTextSelection}
               placeholder="在此处粘贴您的文章内容..."
               className="min-h-[300px] max-h-[600px] overflow-y-auto resize-none font-sans text-base leading-relaxed"
             />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={handleCopy}
-              title="复制文本"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
+            <div className="absolute top-0 right-0 flex p-1">
+              {selectedText && <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleVolumeText}
+                title="播放文本"
+                disabled={loadingAudio}
+                className={loadingAudio ? 'animate-spin' : ''}
+              >
+                <Volume2 className="h-4 w-4" />
+              </Button>}
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopy}
+                title="复制文本"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
             <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{charCount} 字符</div>
           </div>
 
@@ -206,7 +246,7 @@ export function InputSection({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".txt,.md,.markdown,.text,.docx,.pdf"
+              accept={validExtensions}
               className="hidden"
               onChange={handleFileUpload}
             />
@@ -214,7 +254,7 @@ export function InputSection({
               <div className="text-muted-foreground">
                 <Upload className="h-8 w-8 mx-auto mb-2" />
                 <p>点击或拖拽文件到此处</p>
-                <p className="text-xs mt-1">支持 TXT, MD, DOCX, PDF 格式</p>
+                <p className="text-xs mt-1">支持图片、文本、WORD、PDF 格式</p>
               </div>
             ) : (
               <div className="flex items-center justify-center gap-2">
