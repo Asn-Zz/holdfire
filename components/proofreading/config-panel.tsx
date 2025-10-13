@@ -142,7 +142,8 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
               {tempConfig.apiUrl && tempConfig.apiKey && 
                 <Button 
                   onClick={fetchOpenAIModels} 
-                  disabled={isLoading} 
+                  disabled={isLoading}
+                  variant="secondary"
                   className="disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <RotateCcw className="h-4 w-4" />
@@ -201,7 +202,9 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
         </div>
 
         <div className="flex justify-between gap-2">
-          <Button onClick={handleAuthAdmin}
+          <Button 
+            onClick={handleAuthAdmin}
+            variant="secondary"
             disabled={isLoading}
             className="disabled:opacity-50 disabled:cursor-not-allowed"
           >

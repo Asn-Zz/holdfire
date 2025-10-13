@@ -53,16 +53,10 @@ npm run electron:build
 在项目根目录下创建一个名为 `.env.local` 的文件，并填入您配置信息。
 
 ```plaintext
-# .env.local
+# 快速配置 cp .env.template .env.local
 NEXT_PUBLIC_OPENAI_API_URL=https://api.example.com/v1/chat/completions
 NEXT_PUBLIC_OPENAI_API_KEY=your_api_key
 NEXT_PUBLIC_OPENAI_MODEL=gpt-3.5-turbo
-
-NEXT_PUBLIC_FIRE_KEY=your_firecrawl_key
-NEXT_PUBLIC_POLL_KEY=your_pollinations_key
-
-NEXT_PUBLIC_AUTH_TOKEN=your_auth_token
-NEXT_PUBLIC_CONFIG_URL=your_config_json_url
 ```
 
 ## 📂 项目结构
