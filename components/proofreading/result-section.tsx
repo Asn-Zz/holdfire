@@ -85,20 +85,20 @@ export function ResultSection({
             <div className="flex items-center gap-2">
               {ignoredCount > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setShowIgnored(!showIgnored)}>
-                  {showIgnored ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                  {showIgnored ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   {showIgnored ? "隐藏已忽略" : "显示已忽略"}
                 </Button>
               )}
 
               {activeCategory !== "all" && unfixedInCategory > 0 && (
                 <Button variant="outline" size="sm" onClick={() => onIgnoreCategory(activeCategory)}>
-                  <EyeOff className="h-4 w-4 mr-2" />
+                  <EyeOff className="h-4 w-4" />
                   忽略此分类
                 </Button>
               )}
 
               <Button size="sm" onClick={() => onFixCategory(activeCategory)}>
-                <Wand2 className="h-4 w-4 mr-2" />
+                <Wand2 className="h-4 w-4" />
                 {activeCategory === "all" ? `修复全部 (${unfixedInCategory})` : `修复分类 (${unfixedInCategory})`}
               </Button>
             </div>
@@ -120,8 +120,8 @@ export function ResultSection({
               <div>
                 {unfixedCount > 0 ? (
                   <p className="text-sm text-foreground">
-                    共发现 <span className="font-semibold">{activeIssues.length}</span> 个问题，还有{" "}
-                    <span className="font-semibold">{unfixedCount}</span> 个待处理。
+                    共发现<span className="font-semibold mx-1">{activeIssues.length}</span>个问题，还有
+                    <span className="font-semibold mx-1">{unfixedCount}</span>个待处理。
                     将鼠标悬停在下方高亮文本上查看修改建议，修改后更新到上方输入框。
                   </p>
                 ) : (

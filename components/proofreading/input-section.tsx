@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit, Volume2 } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit, Volume2, Search } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -76,6 +76,7 @@ export function InputSection({
       return
     }
 
+    onClear()
     setIsParsingFile(true)
     setUploadedFile(file.name)
 
@@ -301,11 +302,11 @@ export function InputSection({
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
               <Button variant="outline" onClick={onLoadExample}>
-                <Lightbulb className="h-4 w-4 mr-2" />
+                <Lightbulb className="h-4 w-4" />
                 示例
               </Button>
               <Button variant="outline" onClick={onOpenConfig}>
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="h-4 w-4" />
                 配置
               </Button>
             </div>
@@ -322,25 +323,12 @@ export function InputSection({
               <Button onClick={onCheck} disabled={isLoading || !inputText.trim()}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     校对中{wordCount ? `(${wordCount})` : "..."}
                   </>
                 ) : (
                   <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-4 h-4 mr-2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                      />
-                    </svg>
+                    <Search className="h-4 w-4" />
                     开始校对
                   </>
                 )}

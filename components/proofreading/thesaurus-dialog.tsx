@@ -80,15 +80,15 @@ export function ThesaurusDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[85vh]">
+      <DialogContent className="max-w-6xl flex flex-col">
         <DialogHeader>
           <DialogTitle>词库管理</DialogTitle>
           <DialogDescription>管理自定义词汇替换规则</DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-12 gap-6 h-[600px]">
-          {/* Left Panel: Groups */}
-          <div className="col-span-4 space-y-4">
+        <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 flex-1">
+          {/* Groups Section - Full width on mobile, side panel on desktop */}
+          <div className="md:col-span-4 space-y-4">
             <div className="flex gap-2">
               <Input
                 value={newGroupName}
@@ -101,7 +101,7 @@ export function ThesaurusDialog({
               </Button>
             </div>
 
-            <ScrollArea className="h-[520px]">
+            <ScrollArea className="max-h-[55vh]">
               <div className="space-y-1">
                 {thesauruses.map((group) => (
                   <div
@@ -138,10 +138,10 @@ export function ThesaurusDialog({
             </ScrollArea>
           </div>
 
-          {/* Right Panel: Corrections */}
-          <div className="col-span-8 space-y-4">
+          {/* Corrections Section - Full width on mobile, side panel on desktop */}
+          <div className="md:col-span-8 space-y-4">
             {selectedGroup ? (
-              <div className="h-full flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
                 <div className="p-4 rounded-lg border border-border space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <Input value={newOriginal} onChange={(e) => setNewOriginal(e.target.value)} placeholder="原词" />
@@ -174,7 +174,7 @@ export function ThesaurusDialog({
                   </div>
                 </div>
 
-                <ScrollArea className="flex-1 rounded-lg border border-border">
+                <ScrollArea className="h-[30vh] md:h-[45vh] rounded-lg border border-border">
                   <div className="divide-y divide-border">
                     {selectedGroup.corrections.map((correction, index) => (
                       <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/50">

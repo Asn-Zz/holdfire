@@ -32,7 +32,7 @@ export function HistoryDialog({ open, onOpenChange, history, onRestore, onDelete
           </div>
         </DialogHeader>
 
-        <ScrollArea className="h-[500px] pr-4">
+        <ScrollArea className="h-[500px]">
           {history.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <p>暂无历史记录</p>

@@ -30,7 +30,7 @@ export async function parseDocx(file: File): Promise<ParsedFile> {
     const resultText = await mammoth.extractRawText({ arrayBuffer })
     const resultHtml = await mammoth.convertToHtml({ arrayBuffer })
 
-    const text = resultText.value;
+    const text = resultText.value.replace(/\n+/g, "\n\n");
     const chapters = extractChaptersFromHtml(resultHtml.value);
     
     return {
@@ -101,7 +101,7 @@ export async function parsePdf(file: File): Promise<ParsedFile> {
  */
 export async function parseText(file: File): Promise<ParsedFile> {
   try {
-    const text = await file.text()
+    const text = await file.text().then((text) => text.replace(/\n+/g, "\n\n"))
     const chapters = extractChapters(text)
 
     return {
