@@ -11,6 +11,7 @@ import type { ProofreadingConfig } from "@/types/proofreading"
 import { Save, RotateCcw, Lock, Eye, EyeClosed } from "lucide-react"
 import { DEFAULT_CONFIG } from "@/hooks/use-proofreading"
 import { useLocalStorage } from "@/hooks/use-localStorage"
+import { usePrompt } from "@/components/prompt-provider"
 
 interface ConfigPanelProps {
   authCode: string
@@ -26,6 +27,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
   const [tempConfig, setTempConfig] = useState({ ...config });
   const [keyVisible, setKeyVisible] = useState(false)
   const [availableModels, setAvailableModels] = useLocalStorage<string[]>('availableModels', []);
+  const { showPrompt } = usePrompt();
 
   const fetchOpenAIModels = async () => {
     if (isLoading) return;
@@ -58,7 +60,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
 
   const handleAuthAdmin = async () => {
     if (isLoading) return;
-    const code = authCode || window.prompt("请输入访问密码")
+    const code = authCode || await showPrompt("请输入访问密码");
     if (code !== process.env.NEXT_PUBLIC_AUTH_TOKEN) { return }
 
     setIsLoading(true);
@@ -235,6 +237,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
             </Button>
           </div>
         </div>
+
       </DialogContent>
     </Dialog>
   )

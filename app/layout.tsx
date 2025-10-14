@@ -7,6 +7,7 @@ import type React from "react"
 import { Suspense } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { PromptDialog } from "@/components/prompt-provider"
 
 export const metadata: Metadata = {
   title: "文章校对助手 - AI 驱动的智能文本校对工具",
@@ -29,6 +30,7 @@ export default function RootLayout({
           <Suspense fallback={<div className="flex items-center justify-center h-screen text-primary">加载中 ... </div>}>{children}</Suspense>
           <Analytics />
           <Toaster />
+          <PromptDialog />
         </ThemeProvider>
       </body>
     </html>

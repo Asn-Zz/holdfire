@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get version from package.json
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Build Electron app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            # Install dependencies for Linux build
+            sudo apt-get update
+            sudo apt-get install -y librsvg2-bin icnsutils
+            npm run release:github
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            npm run release:github
+          else
+            npm run release:github
+          fi
+        shell: bash
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'  # Only upload from one platform to avoid duplicates
+        with:
+          name: release-assets
+          path: dist/**

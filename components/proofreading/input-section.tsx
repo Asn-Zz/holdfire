@@ -311,12 +311,12 @@ export function InputSection({
               </Button>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {isLoading ? 
-              <Button variant="ghost" onClick={abortCheck} className="text-destructive hover:text-destructive">
+              <Button variant="ghost" size="sm" onClick={abortCheck} className="text-destructive hover:text-destructive">
                 停止
               </Button> : 
-              <Button variant="ghost" onClick={() => { onClear(); removeFile() }} className="text-destructive hover:text-destructive">
+              <Button variant="ghost" size="sm" onClick={() => { onClear(); removeFile() }} className="text-destructive hover:text-destructive">
                 清空
               </Button>
               }
