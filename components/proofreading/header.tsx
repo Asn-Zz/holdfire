@@ -3,12 +3,16 @@
 import { Sparkles, Github, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import type { ThesaurusGroup } from "@/types/proofreading"
 
 interface HeaderProps {
-  onOpenThesaurus: () => void
+  onOpenThesaurus: () => void,
+  thesauruses: ThesaurusGroup[]
 }
 
-export function Header({ onOpenThesaurus }: HeaderProps) {
+export function Header({ onOpenThesaurus, thesauruses }: HeaderProps) {
+  const enabledThesauruses = thesauruses.filter((g) => g.enabled).map((g) => g.name).join(", ")
+  
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
@@ -32,9 +36,9 @@ export function Header({ onOpenThesaurus }: HeaderProps) {
 
             <ThemeToggle />
 
-            <Button variant="outline" onClick={onOpenThesaurus}>
+            <Button variant="outline" onClick={onOpenThesaurus}>  
               <BookOpen className="h-4 w-4" />
-              词库管理
+              词库{enabledThesauruses ? `(${enabledThesauruses})` : ""}
             </Button>
           </div>
         </div>

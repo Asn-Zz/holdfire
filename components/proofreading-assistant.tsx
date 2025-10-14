@@ -36,7 +36,10 @@ export function ProofreadingAssistant() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onOpenThesaurus={() => setShowThesaurus(true)} />
+      <Header 
+        onOpenThesaurus={() => setShowThesaurus(true)}
+        thesauruses={proofreading.thesauruses}
+      />
 
       <div className="flex flex-col gap-8 container mx-auto px-4 py-8 max-w-7xl">
         <InputSection
