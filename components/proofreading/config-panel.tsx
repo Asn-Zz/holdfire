@@ -68,7 +68,9 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
       const res = await fetch(process.env.NEXT_PUBLIC_CONFIG_URL || '')
       const data = await res.json()
       setTempConfig(data)
-      fetchOpenAIModels()
+      setAvailableModels([])
+      onSave(data)
+      onOpenChange(false)
     } catch (error) {
       console.error('获取配置失败:', error);
     } finally {
