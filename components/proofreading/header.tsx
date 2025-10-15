@@ -1,18 +1,14 @@
 "use client"
 
-import { Sparkles, Github, BookOpen } from "lucide-react"
+import { Sparkles, Github, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import type { ThesaurusGroup } from "@/types/proofreading"
 
 interface HeaderProps {
-  onOpenThesaurus: () => void,
-  thesauruses: ThesaurusGroup[]
+  onOpenConfig: () => void,
 }
 
-export function Header({ onOpenThesaurus, thesauruses }: HeaderProps) {
-  const enabledThesauruses = thesauruses.filter((g) => g.enabled).map((g) => g.name).join(", ")
-  
+export function Header({ onOpenConfig }: HeaderProps) {  
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
@@ -23,7 +19,7 @@ export function Header({ onOpenThesaurus, thesauruses }: HeaderProps) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">文章校对助手</h1>
-              <p className="text-sm text-muted-foreground">AI 驱动的智能文本校对工具</p>
+              <p className="hidden md:block text-sm text-muted-foreground">AI 驱动的智能文本校对工具</p>
             </div>
           </div>
 
@@ -36,9 +32,9 @@ export function Header({ onOpenThesaurus, thesauruses }: HeaderProps) {
 
             <ThemeToggle />
 
-            <Button variant="outline" onClick={onOpenThesaurus}>  
-              <BookOpen className="h-4 w-4" />
-              词库{enabledThesauruses ? `(${enabledThesauruses})` : ""}
+            <Button variant="outline" onClick={onOpenConfig} size="sm">  
+              <Settings className="h-4 w-4" />
+              <span className="text-xs">配置</span>
             </Button>
           </div>
         </div>

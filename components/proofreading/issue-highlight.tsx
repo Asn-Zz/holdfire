@@ -142,7 +142,7 @@ export function IssueHighlight({
             <span key={index} className={`relative group cursor-pointer ${getHighlightClass(issue)}`}>
               {segment.content}
               {!issue.fixed && !issue.ignored && (
-                <div className="suggestion-popup absolute bottom-full mb-2 left-0 hidden group-hover:block z-10 min-w-[200px]">
+                <div className="suggestion-popup absolute bottom-full mb-2 left-0 hidden group-hover:block group-active:block z-10 min-w-[200px]">
                   <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
                     <div className="text-xs font-medium text-destructive mb-1">问题：{issue.reason}</div>
                     <div className="text-xs mb-2">

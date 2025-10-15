@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Settings, Upload, FileText, Eye, Edit, Volume2, Search } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Upload, FileText, Eye, Edit, Volume2, Search, BookOpen } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -23,7 +23,7 @@ interface InputSectionProps {
   onCheck: () => void
   onClear: () => void
   onLoadExample: () => void
-  onOpenConfig: () => void
+  onOpenThesaurus: () => void
   abortCheck: () => void
   charCount: number
 }
@@ -37,7 +37,7 @@ export function InputSection({
   onCheck,
   onClear,
   onLoadExample,
-  onOpenConfig,
+  onOpenThesaurus,
   abortCheck,
   charCount,
 }: InputSectionProps) {
@@ -202,8 +202,8 @@ export function InputSection({
             <span className="flex items-center gap-2">
               <Edit className="h-5 w-5 text-primary" />输入文本
             </span>
-            <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-muted-foreground">
-              支持粘贴链接抓取
+            <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-primary hover:underline">
+              文章在线下载
             </a>
           </CardTitle>
         </CardHeader>
@@ -214,7 +214,7 @@ export function InputSection({
               onChange={(e) => setInputText(e.target.value)}
               onPaste={handlePaste}
               onMouseUp={handleTextSelection}
-              placeholder="在此处粘贴您的文章内容..."
+              placeholder="在此处粘贴您的文章内容，或者复制链接地址"
               className="min-h-[300px] max-h-[600px] overflow-y-auto resize-none font-sans text-base leading-relaxed"
             />
             <div className="absolute top-0 right-0 flex p-1">
@@ -305,9 +305,9 @@ export function InputSection({
                 <Lightbulb className="h-4 w-4" />
                 示例
               </Button>
-              <Button variant="outline" onClick={onOpenConfig}>
-                <Settings className="h-4 w-4" />
-                配置
+              <Button variant="outline" onClick={onOpenThesaurus}>
+                <BookOpen className="h-4 w-4" />
+                词库
               </Button>
             </div>
 

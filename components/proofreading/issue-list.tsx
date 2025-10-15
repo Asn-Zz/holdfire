@@ -3,7 +3,7 @@
 import type { Issue } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, X, Undo2, CheckCircle2 } from "lucide-react"
+import { Check, X, Undo2, CheckCircle2, ArrowRight } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface IssueListProps {
@@ -59,16 +59,7 @@ export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUn
                     >
                       {issue.original}
                     </span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-4 h-4 text-muted-foreground"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                    </svg>
+                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
                     <span className="font-medium text-green-500">{issue.suggestion}</span>
                   </div>
                 </div>

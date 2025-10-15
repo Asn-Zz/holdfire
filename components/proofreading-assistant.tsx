@@ -10,6 +10,7 @@ import { ConfigPanel } from "./proofreading/config-panel"
 import { HistoryDialog } from "./proofreading/history-dialog"
 import { ThesaurusDialog } from "./proofreading/thesaurus-dialog"
 import { useProofreading } from "@/hooks/use-proofreading"
+import { HistoryIcon } from "lucide-react"
 import eventBus from "@/lib/eventBus"
 
 export function ProofreadingAssistant() {
@@ -36,10 +37,7 @@ export function ProofreadingAssistant() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        onOpenThesaurus={() => setShowThesaurus(true)}
-        thesauruses={proofreading.thesauruses}
-      />
+      <Header onOpenConfig={() => setShowConfig(true)} />
 
       <div className="flex flex-col gap-8 container mx-auto px-4 py-8 max-w-7xl">
         <InputSection
@@ -52,7 +50,7 @@ export function ProofreadingAssistant() {
           onCheck={proofreading.checkText}
           onClear={proofreading.clearInput}
           onLoadExample={proofreading.loadExample}
-          onOpenConfig={() => setShowConfig(true)}
+          onOpenThesaurus={() => setShowThesaurus(true)}
           charCount={proofreading.charCount}
         />
 
@@ -113,19 +111,10 @@ export function ProofreadingAssistant() {
       {/* Floating History Button */}
       <button
         onClick={() => setShowHistory(true)}
-        className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
+        className="fixed bottom-5 right-4 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
         aria-label="查看历史记录"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5 mx-auto"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>
+        <HistoryIcon className="w-4 h-4 mx-auto" />
       </button>
     </div>
   )

@@ -86,7 +86,7 @@ export function ThesaurusDialog({
           <DialogDescription>管理自定义词汇替换规则</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-6 flex-1">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:gap-6 flex-1">
           {/* Groups Section - Full width on mobile, side panel on desktop */}
           <div className="md:col-span-4 space-y-4">
             <div className="flex gap-2">
@@ -106,7 +106,7 @@ export function ThesaurusDialog({
                 {thesauruses.map((group) => (
                   <div
                     key={group.id}
-                    className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
+                    className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                       selectedGroupId === group.id ? "bg-primary/10 text-primary" : "hover:bg-muted"
                     }`}
                     onClick={() => setSelectedGroupId(group.id)}
@@ -117,7 +117,7 @@ export function ThesaurusDialog({
                         onCheckedChange={() => onToggleGroup(group.id)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <span className="truncate">
+                      <span className="truncate text-sm">
                         {group.name} ({group.corrections.length})
                       </span>
                     </div>

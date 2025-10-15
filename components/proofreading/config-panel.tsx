@@ -109,6 +109,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
                 value={tempConfig.apiKey}
                 onChange={(e) => setTempConfig({ ...tempConfig, apiKey: e.target.value })}
                 placeholder="sk-..."
+                className="pr-7"
               />
 
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-primary" onClick={() => setKeyVisible(!keyVisible)}>
@@ -158,7 +159,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
           <div className="space-y-2 grid grid-cols-2 gap-2">
             <div className="space-y-2">
               <Label className="flex items-center justify-between" htmlFor="firecrawlKey">
-                <span>firecrawl Key（可选）</span>
+                <span>firecrawl Key</span>
                 <a href="https://firecrawl.dev" target="_blank" className="text-xs text-primary">获取链接</a>
               </Label>
 
@@ -170,12 +171,12 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
                 placeholder="fc-..."
               />
 
-              <p className="text-xs text-muted-foreground">用于解析链接，获取文章内容</p>
+              <p className="text-xs text-muted-foreground">可选，用于解析链接，获取文章内容</p>
             </div>
             
             <div className="space-y-2">
               <Label className="flex items-center justify-between" htmlFor="pollinationsKey">
-                <span>pollinations Key（可选）</span>
+                <span>pollinations Key</span>
                 <a href="https://auth.pollinations.ai" target="_blank" className="text-xs text-primary">获取链接</a>
               </Label>
 
@@ -187,7 +188,7 @@ export function ConfigPanel({ authCode, open, onOpenChange, config, onSave, onRe
                 placeholder="xxxx_xxxx"
               />
 
-              <p className="text-xs text-muted-foreground">多模态支持，提供图片、音频、搜索等功能</p>
+              <p className="text-xs text-muted-foreground">可选，多模态支持，提供图片、音频、搜索等功能</p>
             </div>
           </div>
 
