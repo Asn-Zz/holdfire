@@ -6,10 +6,27 @@ interface fetchSSEParams extends ProofreadingConfig {
     onChunk?: (chunk: string) => void,
 }
 
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3) {
+    let retries = 0;
+    while (retries < maxRetries) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+            retries++;
+        } catch (error) {            
+            retries++;
+        }
+    }
+    throw new Error("校对失败，超过最大重试次数，请稍后重试或检查配置参数");
+}
+
 export default async function fetchSSE(config: fetchSSEParams) {
     const startTime = new Date();
     const signal = (config.controller || new AbortController()).signal
-    const response = await fetch(config.apiUrl, {
+
+    const response = await fetchWithRetry(config.apiUrl, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${config.apiKey}`,

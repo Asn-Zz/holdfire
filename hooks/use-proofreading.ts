@@ -96,7 +96,16 @@ export function useProofreading() {
 """
 ${text}
 """${thesaurusText}
-请直接返回JSON数组：`
+请直接返回JSON数组, 参考格式：
+[
+  {
+    "original": "原始文本片段",
+    "suggestion": "建议修改后的文本",
+    "reason": "修改原因的简要说明",
+    "category": "错误类型"
+  }
+  ...
+]`
   }
 
   const checkText = async () => {
@@ -128,7 +137,9 @@ ${text}
         if (!Array.isArray(parsedIssues)) throw new Error("响应不是JSON数组。")
       } catch (e: any) {
         console.error("解析校对API响应失败:", e, "原始响应:", responseContent)
-        throw new Error(`无法解析校对API响应: ${e.message}`)
+        parsedIssues = await fixJsonFormat(responseContent)
+
+        if (!Array.isArray(parsedIssues)) throw new Error("修复后的响应不是JSON数组。")
       }
 
       let currentOffset = 0
@@ -141,21 +152,24 @@ ${text}
           return
         }
         const start = inputText.indexOf(item.original, currentOffset)
+        const issue = {
+          ...item,
+          id: issueIdCounter++,
+          fixed: false,
+          start: 0,
+          end: 0,
+          category: item.category || "语法错误",
+          ignored: true,
+        }
         if (start !== -1) {
           const end = start + item.original.length
-          processedIssues.push({
-            ...item,
-            id: issueIdCounter++,
-            start,
-            end,
-            fixed: false,
-            category: item.category || "语法错误",
-            ignored: false,
-          })
+          issue.start = start
+          issue.end = end
+          issue.ignored = false
           currentOffset = start + 1
-        } else {
-          console.warn(`无法在文本中找到原始片段 (从 ${currentOffset} 开始): "${item.original}"`)
         }
+
+        processedIssues.push(issue)
       })
 
       setIssues(processedIssues.sort((a, b) => a.start - b.start))
@@ -176,6 +190,20 @@ ${text}
     } finally {
       setIsLoading(false)
       setController(null)
+    }
+  }
+  
+  const fixJsonFormat = async (json: string) => {
+    try {
+      const prompt = `请修复以下 JSON 格式错误, 请直接返回修复后的 JSON 格式, 不要任何其他信息：\n\n${json}`
+      const response = await fetch(`https://text.pollinations.ai/${prompt}?model=gemini&token=${config.pollinationsKey}`);
+      const data = await response.text()
+      const jsonStr = data.replace(/^```json\s*|```$/g, "").trim()
+
+      return JSON.parse(jsonStr)
+    } catch (error) {
+      console.error("修复 JSON 格式错误出错:", error)
+      return json
     }
   }
 

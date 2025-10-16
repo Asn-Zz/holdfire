@@ -138,7 +138,7 @@ export async function parseImage(file: File, config: ProofreadingConfig): Promis
         messages: [{
           role: 'user',
           content: [
-            { type: "text", text: "提取图片中的文字，返回纯文本，不要任何其他信息。" },
+            { type: "text", text: "提取图片中的文字，返回纯文本，不要任何其他信息，公式采用LaTeX格式。" },
             {
               type: 'image_url',
               image_url: { url: image_url },
