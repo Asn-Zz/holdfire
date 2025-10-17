@@ -142,7 +142,9 @@ ${text}
           console.warn("跳过格式不完整的建议:", item)
           return
         }
-        const start = inputText.indexOf(item.original, currentOffset)
+        let start = inputText.indexOf(item.original, currentOffset)
+        start = start === -1 ? inputText.indexOf(item.original) : start
+
         const issue = {
           ...item,
           id: issueIdCounter++,

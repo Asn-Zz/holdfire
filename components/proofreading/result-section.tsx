@@ -154,7 +154,7 @@ export function ResultSection({
           </div>
         )}
 
-        <div className="flex items-center gap-4">
+        <div className={`flex items-start gap-4 ${showDiff ? "text-sm" : "text-base"}`}>
           {showDiff && (
             <IssueHighlight
               inputText={inputText}

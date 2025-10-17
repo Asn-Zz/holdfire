@@ -95,7 +95,7 @@ export function IssueHighlight({
 
   return (
     <>
-      <div id="result-text-area" className="relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed" onMouseUp={handleTextSelection}>
+      <div id="result-text-area" className="flex-1 relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed" onMouseUp={handleTextSelection}>
         {searchPopup?.visible && (
             <div 
                 className='absolute z-10 flex bg-white rounded-lg shadow-lg overflow-hidden' 
@@ -140,7 +140,7 @@ export function IssueHighlight({
           const issue = segment.issue!
           return (
             <span key={index} className={`relative group cursor-pointer ${getHighlightClass(issue)}`}>
-              {issue.fixed ? segment.content : segment.issue?.original}
+              {issue.fixed ? segment.content : segment.content ? segment.issue?.original : segment.content}
               {!issue.fixed && !issue.ignored && (
                 <div className="suggestion-popup absolute bottom-full mb-2 left-0 hidden group-hover:block group-active:block z-10 min-w-[200px]">
                   <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
