@@ -16,8 +16,8 @@ interface IssueListProps {
 const CATEGORY_STYLES = {
   错别字: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/20" },
   语法错误: { bg: "bg-yellow-500/10", text: "text-yellow-500", border: "border-yellow-500/20" },
-  标点符号: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/20" },
-  表达优化: { bg: "bg-green-500/10", text: "text-green-500", border: "border-green-500/20" },
+  标点符号: { bg: "bg-purple-500/10", text: "text-purple-500", border: "border-purple-500/20" },
+  表达优化: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/20" },
 }
 
 export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUnignoreSuggestion }: IssueListProps) {

@@ -65,8 +65,8 @@ export function IssueHighlight({
       {
         错别字: "highlight-error",
         语法错误: "highlight-warning",
-        标点符号: "highlight-info",
-        表达优化: "highlight-success",
+        标点符号: "highlight-suggest",
+        表达优化: "highlight-info",
       }[issue.category] || "highlight-info"
 
     return `${baseClass} ${!isActive ? "opacity-30" : ""}`
@@ -140,7 +140,7 @@ export function IssueHighlight({
           const issue = segment.issue!
           return (
             <span key={index} className={`relative group cursor-pointer ${getHighlightClass(issue)}`}>
-              {segment.content}
+              {issue.fixed ? segment.content : segment.issue?.original}
               {!issue.fixed && !issue.ignored && (
                 <div className="suggestion-popup absolute bottom-full mb-2 left-0 hidden group-hover:block group-active:block z-10 min-w-[200px]">
                   <div className="bg-popover border border-border rounded-lg shadow-lg p-3">

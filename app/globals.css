@@ -144,12 +144,12 @@
   @apply bg-blue-500/20 border-b-2 border-blue-500/60;
 }
 
-.highlight-success {
-  @apply bg-green-500/20 border-b-2 border-green-500/60;
+.highlight-suggest {
+  @apply bg-purple-500/20 border-b-2 border-purple-500/60;
 }
 
 .highlight-fixed {
-  @apply bg-green-500/10 line-through opacity-60;
+  @apply bg-green-500/10 text-green-600 border-b-2 border-green-600;
 }
 
 .highlight-ignored {

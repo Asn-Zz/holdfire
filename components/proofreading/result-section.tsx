@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle2, AlertCircle, Wand2, EyeOff, Eye } from "lucide-react"
+import { CheckCircle2, AlertCircle, Wand2, EyeOff, Eye, GitCompareArrows } from "lucide-react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { IssueHighlight } from "./issue-highlight"
 import { IssueList } from "./issue-list"
@@ -40,7 +40,8 @@ export function ResultSection({
   onFixAll,
   onFixCategory,
   onIgnoreCategory,
-}: ResultSectionProps) {
+}: ResultSectionProps) {  
+  const [showDiff, setShowDiff] = useState(false)
   const [activeCategory, setActiveCategory] = useState<IssueCategory | "all">("all")
   const [showIgnored, setShowIgnored] = useState(true)
 
@@ -70,15 +71,27 @@ export function ResultSection({
     return filteredIssues.filter((i) => !i.fixed && !i.ignored).length
   }, [filteredIssues])
 
+  useEffect(() => {
+    return () => {
+      setShowDiff(false)
+    }
+  }, [inputText])
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <CardTitle className="flex items-center justify-between w-full gap-2">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+              </div>
+              校对结果
             </div>
-            校对结果
+
+            {unfixedCount === 0 && <Button size="sm" onClick={() => setShowDiff(!showDiff)}>
+              <GitCompareArrows className="h-4 w-4" /> {showDiff ? "隐藏对比" : "查看对比"}
+            </Button>}
           </CardTitle>
 
           {activeIssues.length > 0 && unfixedCount > 0 && (
@@ -141,14 +154,25 @@ export function ResultSection({
           </div>
         )}
 
-        {/* Highlighted Text */}
-        <IssueHighlight
-          inputText={inputText}
-          issues={showIgnored ? issues : activeIssues}
-          activeCategory={activeCategory}
-          onAcceptSuggestion={onAcceptSuggestion}
-          onIgnoreSuggestion={onIgnoreSuggestion}
-        />
+        <div className="flex items-center gap-4">
+          {showDiff && (
+            <IssueHighlight
+              inputText={inputText}
+              issues={issues.map((i) => ({ ...i, fixed: false }))}
+              activeCategory={activeCategory}
+              onAcceptSuggestion={onAcceptSuggestion}
+              onIgnoreSuggestion={onIgnoreSuggestion}
+            />
+          )}
+
+          <IssueHighlight
+            inputText={inputText}
+            issues={showIgnored ? issues : activeIssues}
+            activeCategory={activeCategory}
+            onAcceptSuggestion={onAcceptSuggestion}
+            onIgnoreSuggestion={onIgnoreSuggestion}
+          />
+        </div>
 
         {/* Issue List */}
         <div className="space-y-4">
