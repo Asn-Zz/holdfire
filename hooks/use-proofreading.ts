@@ -96,16 +96,7 @@ export function useProofreading() {
 """
 ${text}
 """${thesaurusText}
-请直接返回JSON数组, 参考格式：
-[
-  {
-    "original": "原始文本片段",
-    "suggestion": "建议修改后的文本",
-    "reason": "修改原因的简要说明",
-    "category": "错误类型"
-  }
-  ...
-]`
+请直接返回JSON数组, 参考格式：[{...}, ...]`
   }
 
   const checkText = async () => {

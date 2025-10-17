@@ -50,6 +50,7 @@ export default async function fetchSSE(config: fetchSSEParams) {
     }
 
     const reader = response.body?.getReader()
+    const decoder = new TextDecoder('utf-8')
     if (!reader) {
         throw new Error("No reader available")
     }
@@ -60,8 +61,8 @@ export default async function fetchSSE(config: fetchSSEParams) {
         const { done, value } = await reader.read()
         if (done) break
 
-        const chunk = new TextDecoder().decode(value)
-        const lines = chunk.split("\n")
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split("\n").filter(line => line.trim())
 
         analyze.firstTime = analyze.firstTime || ((new Date().getTime() - startTime.getTime()) / 1000).toFixed(2)
         for (const line of lines) {
