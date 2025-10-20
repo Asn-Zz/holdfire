@@ -11,6 +11,7 @@ import type {
 } from "@/types/proofreading"
 import { useLocalStorage } from "./use-localStorage"
 import fetchSSE from "@/lib/fetchSSE"
+import { delay } from "@/lib/utils"
 
 export const DEFAULT_CONFIG: ProofreadingConfig = {
   apiUrl: process.env.NEXT_PUBLIC_OPENAI_API_URL    || 'https://text.pollinations.ai/openai',
@@ -142,9 +143,7 @@ ${text}
           console.warn("跳过格式不完整的建议:", item)
           return
         }
-        let start = inputText.indexOf(item.original, currentOffset)
-        start = start === -1 ? inputText.indexOf(item.original) : start
-
+        const start = inputText.indexOf(item.original, currentOffset)
         const issue = {
           ...item,
           id: issueIdCounter++,
@@ -217,8 +216,10 @@ ${text}
     })
 
     setInputText(currentText)
-    setIssues((prev) =>
-      prev.map((issue) => (fixesToApply.some((fix) => fix.id === issue.id) ? { ...issue, fixed: true } : issue)),
+    setIssues((prev) => 
+      prev.map((issue) => 
+        fixesToApply.some((fix) => fix.id === issue.id) ? { ...issue, fixed: true } : issue
+      )
     )
   }
 
@@ -253,7 +254,8 @@ ${text}
     )
   }
 
-  const restoreFromHistory = (entry: HistoryEntry) => {
+  const restoreFromHistory = async (entry: HistoryEntry) => {
+    setShowResults(false); await delay()
     setInputText(entry.text)
     setIssues(entry.issues)
     setShowResults(true)

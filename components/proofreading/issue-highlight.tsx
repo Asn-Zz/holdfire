@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
 import { X, Languages, BookOpen, Search } from "lucide-react"
@@ -21,7 +21,7 @@ export function IssueHighlight({
   onAcceptSuggestion,
   onIgnoreSuggestion,
 }: IssueHighlightProps) {
-  const segments = useMemo(() => {
+  const [segments, setSegments] = useState(() => {
     if (issues.length === 0) {
       return [{ type: "text" as const, content: inputText }]
     }
@@ -53,7 +53,7 @@ export function IssueHighlight({
     }
 
     return result
-  }, [inputText, issues])
+  })
 
   const getHighlightClass = (issue: Issue) => {
     if (issue.fixed) return "highlight-fixed"
@@ -92,6 +92,20 @@ export function IssueHighlight({
       setSearchPopup(null);                                                                                  
     }                                                                                                          
   };
+
+ useEffect(() => {
+    const filteredIssues = issues.filter((issue) => issue.fixed)
+    const newSegments = segments.map((segment) => {
+      if (segment.type === "highlight") {
+        const issue = segment.issue!
+        if (filteredIssues.some((item) => item.id === issue.id)) {
+          return { ...segment, content: issue.suggestion, issue: { ...issue, fixed: true } }
+        }
+      }
+      return segment
+    })
+    setSegments(newSegments)
+  }, [issues]);
 
   return (
     <>

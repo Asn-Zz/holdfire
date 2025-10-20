@@ -42,6 +42,7 @@ export function ResultSection({
   onIgnoreCategory,
 }: ResultSectionProps) {  
   const [showDiff, setShowDiff] = useState(false)
+  const [originalData, setOriginalData] = useState({ inputText, issues })
   const [activeCategory, setActiveCategory] = useState<IssueCategory | "all">("all")
   const [showIgnored, setShowIgnored] = useState(true)
 
@@ -71,11 +72,15 @@ export function ResultSection({
     return filteredIssues.filter((i) => !i.fixed && !i.ignored).length
   }, [filteredIssues])
 
-  useEffect(() => {
+  useEffect(() => {    
     return () => {
       setShowDiff(false)
     }
   }, [inputText])
+
+  useEffect(() => {
+    setOriginalData({ inputText, issues })
+  }, [])
 
   return (
     <Card>
@@ -157,8 +162,8 @@ export function ResultSection({
         <div className={`flex items-start gap-4 ${showDiff ? "text-sm" : "text-base"}`}>
           {showDiff && (
             <IssueHighlight
-              inputText={inputText}
-              issues={issues.map((i) => ({ ...i, fixed: false }))}
+              inputText={originalData.inputText}
+              issues={originalData.issues}
               activeCategory={activeCategory}
               onAcceptSuggestion={onAcceptSuggestion}
               onIgnoreSuggestion={onIgnoreSuggestion}
