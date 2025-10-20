@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Upload, FileText, Eye, Edit, Volume2, Search, BookOpen } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Upload, FileText, Eye, Languages, Volume2, Search, BookOpen, Link } from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -59,6 +59,8 @@ export function InputSection({
     })
   }
 
+  const maxPreviewLength = 5000
+  const placeholder = `在此处粘贴您的文章内容，或者复制链接地址，推荐字符数在${maxPreviewLength}字以内，超过${maxPreviewLength}字将分块处理`
   const validExtensions = ".png,.jpg,.jpeg,.txt,.md,.markdown,.docx,.pdf"
   const validExtensionsList = validExtensions.split(",").map((ext) => ext.slice(1).toUpperCase()).join(" ") 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,8 +85,8 @@ export function InputSection({
     try {
       const parsed = await parseFile(file, config)
       setParsedFile(parsed)
-      setPreviewOpen(true)
       setInputText(parsed.text)
+      setPreviewOpen(parsed.text.length > maxPreviewLength)
       
       toast({
         title: "文件解析成功",
@@ -200,9 +202,10 @@ export function InputSection({
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-2">
-              <Edit className="h-5 w-5 text-primary" />输入文本
+              <Languages className="h-5 w-5 text-primary" />输入文本
             </span>
-            <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-primary hover:underline">
+            <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1">
+              <Link className="h-3 w-3" />
               文章在线下载
             </a>
           </CardTitle>
@@ -214,7 +217,7 @@ export function InputSection({
               onChange={(e) => setInputText(e.target.value)}
               onPaste={handlePaste}
               onMouseUp={handleTextSelection}
-              placeholder="在此处粘贴您的文章内容，或者复制链接地址"
+              placeholder={placeholder}
               className="min-h-[300px] max-h-[600px] overflow-y-auto resize-none font-sans text-base leading-relaxed"
             />
             <div className="absolute top-0 right-0 flex p-1">
@@ -275,7 +278,7 @@ export function InputSection({
                       className="h-6 w-6"
                       onClick={(e) => {
                         e.stopPropagation()
-                        setPreviewOpen(true)
+                        setPreviewOpen(!previewOpen)
                       }}
                       title="预览文件"
                     >

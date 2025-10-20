@@ -223,6 +223,17 @@ const extractChapters = (text: string): Chapter[] => {
   if (currentChapter) {
     currentChapter.content = currentContent.trim();
     chapters.push(currentChapter);
+  } else {
+    const maxPreviewLength = 5000
+    const chunks = Array.from({ length: Math.ceil(text.length / maxPreviewLength) }, (_, i) => text.slice(i * maxPreviewLength, (i + 1) * maxPreviewLength))
+    
+    chunks.forEach((chunk, index) => {
+      chapters.push({
+        id: `chapter-${index + 1}`,
+        title: `分块 ${index + 1} (${maxPreviewLength * index}-${maxPreviewLength * (index + 1)})`,
+        content: chunk.trim(),
+      })
+    })
   }
   
   return chapters;

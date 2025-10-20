@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle2, AlertCircle, Wand2, EyeOff, Eye, GitCompareArrows } from "lucide-react"
+import { CheckCircle2, AlertCircle, Wand2, EyeOff, Eye, GitCompareArrows, Download, MonitorCheckIcon } from "lucide-react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { IssueHighlight } from "./issue-highlight"
 import { IssueList } from "./issue-list"
+import { exportByBlob } from "@/lib/utils"
 
 interface ResultSectionProps {
   inputText: string
@@ -72,6 +73,14 @@ export function ResultSection({
     return filteredIssues.filter((i) => !i.fixed && !i.ignored).length
   }, [filteredIssues])
 
+  const exportText = () => {
+    const blob = new Blob([inputText], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const fileName = `${inputText.slice(0, 15).trim()}...校对(${issues.length}).md`
+
+    exportByBlob(url, fileName)
+  }
+
   useEffect(() => {    
     return () => {
       setShowDiff(false)
@@ -89,14 +98,20 @@ export function ResultSection({
           <CardTitle className="flex items-center justify-between w-full gap-2">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <MonitorCheckIcon className="h-5 w-5 text-green-500" />
               </div>
               校对结果
             </div>
 
-            {unfixedCount === 0 && <Button size="sm" onClick={() => setShowDiff(!showDiff)}>
-              <GitCompareArrows className="h-4 w-4" /> {showDiff ? "隐藏对比" : "查看对比"}
-            </Button>}
+            {unfixedCount === 0 && <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={exportText}>
+                <Download className="h-4 w-4" /> 导出
+              </Button>
+
+              <Button size="sm" onClick={() => setShowDiff(!showDiff)}>
+                <GitCompareArrows className="h-4 w-4" /> {showDiff ? "隐藏对比" : "查看对比"}
+              </Button>
+            </div>}
           </CardTitle>
 
           {activeIssues.length > 0 && unfixedCount > 0 && (
@@ -104,7 +119,7 @@ export function ResultSection({
               {ignoredCount > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setShowIgnored(!showIgnored)}>
                   {showIgnored ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  {showIgnored ? "隐藏已忽略" : "显示已忽略"}
+                  {showIgnored ? "隐藏忽略" : "显示忽略"}
                 </Button>
               )}
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
 import { Button } from "@/components/ui/button"
 import { X, Languages, BookOpen, Search } from "lucide-react"
@@ -72,11 +72,12 @@ export function IssueHighlight({
     return `${baseClass} ${!isActive ? "opacity-30" : ""}`
   }
 
+  const resultAreaRef = useRef<HTMLDivElement>(null)
   const [searchPopup, setSearchPopup] = useState<{ visible: boolean; x: number; y: number; text: string } | null>(null);
   const handleTextSelection = () => {                                                                
     const selection = window.getSelection();                                                                   
     const selectedText = selection?.toString().trim();                                                         
-    const resultArea = document.getElementById('result-text-area');   
+    const resultArea = resultAreaRef.current;
     
     if (selectedText && selection && resultArea) {                                                             
       const range = selection.getRangeAt(0);                                                                 
@@ -109,7 +110,7 @@ export function IssueHighlight({
 
   return (
     <>
-      <div id="result-text-area" className="flex-1 relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed" onMouseUp={handleTextSelection}>
+      <div ref={resultAreaRef} className="flex-1 relative p-6 rounded-lg bg-card border border-border min-h-[200px] whitespace-pre-wrap leading-relaxed" onMouseUp={handleTextSelection}>
         {searchPopup?.visible && (
             <div 
                 className='absolute z-10 flex bg-white rounded-lg shadow-lg overflow-hidden' 
