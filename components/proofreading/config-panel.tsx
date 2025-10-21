@@ -14,7 +14,7 @@ import { useLocalStorage } from "@/hooks/use-localStorage"
 import { usePrompt } from "@/components/prompt-provider"
 
 interface ConfigPanelProps {
-  authCode: string
+  authCode?: string
   open: boolean
   onOpenChange: (open: boolean) => void
   config: ProofreadingConfig

@@ -1,10 +1,10 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
 import { Languages, Server, Search, ArrowRightLeft, Link, HistoryIcon, Lightbulb, Loader2 } from "lucide-react"
 import { useProofreading } from "@/hooks/use-proofreading"
 import { generateDiffMarkup, DiffItem, delay } from "@/lib/utils"
+import { HistoryEntry } from "@/types/proofreading"
 import { Header } from "./proofreading/header"
 import { Footer } from "./proofreading/footer"
 import { ConfigPanel } from "./proofreading/config-panel"
@@ -13,15 +13,11 @@ import { TextInput } from "./different/text-input"
 import { TextOutput } from "./different/text-output"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Button } from "./ui/button"
-import { HistoryEntry } from "@/types/proofreading"
 
 export function DiffAssistant() {
+  const proofreading = useProofreading()
   const [showConfig, setShowConfig] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-
-  const proofreading = useProofreading()
-  const authCode = useSearchParams().get('code') || ''
-
   const [inputLeft, setInputLeft] = useState('')
   const [inputRight, setInputRight] = useState('')
 
@@ -63,12 +59,13 @@ export function DiffAssistant() {
 
   const restoreFromHistory = (entry: HistoryEntry) => {
     setInputLeft(entry.text)
-
     const fixedText = entry.issues.reduce((text, issue) => {
       return text.replace(issue.original, issue.suggestion)
     }, entry.text)
-
     setInputRight(fixedText)
+
+    setLeftDiff([])
+    setRightDiff([])
   }
 
   const onClear = () => {
@@ -139,7 +136,7 @@ export function DiffAssistant() {
                 </span>
 
                 {analyze.result > 0 && <span className="text-xs text-muted-foreground">
-                  统计：{`更改: ${analyze?.update}、不同: ${analyze?.add}`}
+                  统计：{`总计 ${analyze?.update + analyze?.add}、更改 ${analyze?.update}、不同 ${analyze?.add}`}
                 </span>}
               </span>
             </CardTitle>
@@ -156,7 +153,6 @@ export function DiffAssistant() {
       </div>
 
       <ConfigPanel
-        authCode={authCode}
         open={showConfig}
         onOpenChange={setShowConfig}
         config={proofreading.config}
