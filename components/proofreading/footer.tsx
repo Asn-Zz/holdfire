@@ -1,5 +1,6 @@
 import { Sparkles, File, Book, Volume2, LockKeyhole, Library } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Link } from "lucide-react"
 
 interface FooterInfo {
     title: string;
@@ -44,7 +45,15 @@ export function Footer() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>文章校对助手</CardTitle>
+                <CardTitle>
+                    <div className="flex items-center justify-between gap-2">
+                        <span>文章校对助手</span>
+                        <a href="/diff" className="text-xs text-primary hover:underline flex items-center gap-1">
+                            <Link className="h-3 w-3" />
+                            文本在线比对
+                        </a>
+                    </div>
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-4">文章校对助手是一款专为内容创作者设计的智能校对工具，能够帮助您快速校对文章。</p>
