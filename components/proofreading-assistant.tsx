@@ -61,7 +61,7 @@ export function ProofreadingAssistant() {
           </div>
         )}
 
-        {proofreading.showResults && !proofreading.isLoading && (
+        {proofreading.showResults && (
           <ResultSection
             inputText={proofreading.inputText}
             issues={proofreading.issues}

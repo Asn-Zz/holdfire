@@ -10,32 +10,32 @@ interface FooterInfo {
 const INFOS: FooterInfo[] = [
     {
         title: '智能校对',
-        description: '自动校对文章中的语法错误、拼写错误、标点符号错误等',
+        description: '自动校对文章中的多种错误',
         icon: Sparkles,
     },
     {
-        title: '多文件识别',
-        description: '支持处理多类型文件，自动识别文件类型并进行校对',
+        title: '文件识别',
+        description: '支持处理多类型文件',
         icon: File,
     },
     {
-        title: '自定义词库',
-        description: '支持自定义词库，使用分组管理',
+        title: '词库管理',
+        description: '自定义词库分组管理',
         icon: Book,
     },
     {
         title: '语音朗读',
-        description: '支持选中文本后进行朗读',
+        description: '选中文本后可进行朗读',
         icon: Volume2,
     },
     {
         title: '错误分类',
-        description: '错误分类清晰，并给出详细建议',
+        description: '错误分类清晰，支持文本比对',
         icon: Library,
     },
     {
         title: '安全可靠',
-        description: '全量数据本地存储，代码开源，支持本地运行',
+        description: '全量数据本地存储，代码开源部署',
         icon: LockKeyhole,
     }
 ]
@@ -48,7 +48,7 @@ export function Footer() {
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-4">文章校对助手是一款专为内容创作者设计的智能校对工具，能够帮助您快速校对文章。</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
                     {INFOS.map((item) => (
                         <div key={item.title} className={`bg-blue-50 dark:bg-blue-950 p-4 rounded-lg`}>
                             <div className="flex items-center mb-3">

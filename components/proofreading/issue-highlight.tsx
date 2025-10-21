@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import type { Issue, IssueCategory } from "@/types/proofreading"
-import { Button } from "@/components/ui/button"
-import { X, Languages, BookOpen, Search } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Languages, BookOpen, Search } from "lucide-react"
 import eventBus from "@/lib/eventBus"
 
 interface IssueHighlightProps {
@@ -95,12 +95,12 @@ export function IssueHighlight({
   };
 
  useEffect(() => {
-    const filteredIssues = issues.filter((issue) => issue.fixed)
     const newSegments = segments.map((segment) => {
       if (segment.type === "highlight") {
         const issue = segment.issue!
-        if (filteredIssues.some((item) => item.id === issue.id)) {
-          return { ...segment, content: issue.suggestion, issue: { ...issue, fixed: true } }
+        const targetIssue = issues.find((item) => item.id === issue.id)
+        if (targetIssue) {
+          return { ...segment, content: issue.suggestion, issue: { ...issue, fixed: targetIssue.fixed, ignored: targetIssue.ignored } }
         }
       }
       return segment
@@ -164,17 +164,12 @@ export function IssueHighlight({
                       建议修改为：<span className="font-medium text-green-500">{issue.suggestion}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" className="h-7 text-xs" onClick={() => onAcceptSuggestion(issue.id)}>
-                        接受建议
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={() => onIgnoreSuggestion(issue.id)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                      <Badge className="h-6 text-xs" onClick={() => onAcceptSuggestion(issue.id)}>
+                        采纳
+                      </Badge>
+                      <Badge className="h-6 text-xs" variant="secondary" onClick={() => onIgnoreSuggestion(issue.id)}>
+                        忽略
+                      </Badge>
                     </div>
                   </div>
                 </div>

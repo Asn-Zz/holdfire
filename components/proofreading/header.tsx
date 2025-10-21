@@ -1,6 +1,6 @@
 "use client"
 
-import { Sparkles, Github, Settings } from "lucide-react"
+import { Sparkles, Github, Settings, Coffee } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -23,12 +23,14 @@ export function Header({ onOpenConfig }: HeaderProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <a href="https://github.com/Asn-Zz/holdfire" target="_blank">
-                <Github className="h-4 w-4" />
-              </a>
-            </Button>
+          <div className="flex items-center gap-4">
+            <a href="https://m.tb.cn/h.SRg8ctW?tk=pDK7f107qrI" target="_blank" title="赞助支持">
+              <Coffee className="h-4 w-4" />
+            </a>
+
+            <a href="https://github.com/Asn-Zz/holdfire" target="_blank" title="GitHub">
+              <Github className="h-4 w-4" />
+            </a>
 
             <ThemeToggle />
 

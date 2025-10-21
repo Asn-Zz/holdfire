@@ -1,7 +1,6 @@
 "use client"
 
 import type { Issue } from "@/types/proofreading"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, X, Undo2, CheckCircle2, ArrowRight } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -32,7 +31,7 @@ export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUn
   return (
     <ScrollArea className="h-[400px] rounded-lg border border-border">
       <div className="divide-y divide-border">
-        {issues.map((issue) => {
+        {issues.map((issue: Issue) => {
           const style = CATEGORY_STYLES[issue.category] || CATEGORY_STYLES["表达优化"]
 
           return (
@@ -64,22 +63,21 @@ export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUn
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
                   {issue.fixed ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
                   ) : issue.ignored ? (
-                    <Button size="sm" variant="outline" onClick={() => onUnignoreSuggestion(issue.id)}>
-                      <Undo2 className="h-3 w-3 mr-1" />
-                      撤销
-                    </Button>
+                    <Badge variant="secondary" className="h-6" onClick={() => onUnignoreSuggestion(issue.id)}>
+                      <Undo2 className="h-4 w-4" />撤销
+                    </Badge>
                   ) : (
                     <>
-                      <Button size="sm" onClick={() => onAcceptSuggestion(issue.id)}>
-                        <Check className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => onIgnoreSuggestion(issue.id)}>
-                        <X className="h-3 w-3" />
-                      </Button>
+                      <Badge variant="default" className="h-6" onClick={() => onAcceptSuggestion(issue.id)}>
+                        <Check className="h-4 w-4" />
+                      </Badge>
+                      <Badge variant="secondary" className="h-6" onClick={() => onIgnoreSuggestion(issue.id)}>
+                        <X className="h-4 w-4" />
+                      </Badge>
                     </>
                   )}
                 </div>

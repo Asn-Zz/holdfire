@@ -148,8 +148,8 @@ ${text}
           ...item,
           id: issueIdCounter++,
           fixed: false,
-          start: 0,
-          end: 0,
+          start: inputText.length,
+          end: inputText.length,
           category: item.category || "语法错误",
           ignored: true,
         }

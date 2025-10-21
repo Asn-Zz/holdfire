@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Copy, Trash2, Lightbulb, Upload, FileText, Eye, Languages, Volume2, Search, BookOpen, Link } from "lucide-react"
+import { Loader2, Copy, Trash2, Lightbulb, Upload, FileText, Eye, Languages, Volume2, Search, BookOpen, Link, MonitorCheckIcon} from "lucide-react"
 import { useRef, useState } from "react"
 import { parseFile, type ParsedFile } from "@/lib/file-parser"
 import { request } from "@/lib/request"
@@ -327,7 +327,7 @@ export function InputSection({
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    校对中{wordCount ? `(${wordCount})` : "..."}
+                    校对中
                   </>
                 ) : (
                   <>
@@ -347,6 +347,22 @@ export function InputSection({
         onConfirm={handleConfirmFile}
         onTransfer={handleTransferFile}
       />
+
+      {isLoading && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <MonitorCheckIcon className="h-5 w-5 text-green-500" />
+            </div>
+            <b>校对结果</b>
+          </div>
+
+          <div className="flex items-center justify-center py-15">
+            <Loader2 className="mr-2 h-5 w-5 animate-spin text-primary" />
+            <span className="text-gray-600">正在校对中，请稍候{wordCount ? `(${wordCount})` : "..."}</span>
+          </div>
+        </div>
+      )}
     </>
   )
 }
