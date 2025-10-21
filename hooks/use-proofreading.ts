@@ -139,7 +139,7 @@ ${text}
       let issueIdCounter = 0
 
       parsedIssues.forEach((item: any) => {
-        if (!item.original || typeof item.suggestion === "undefined" || !item.reason) {
+        if (!item.original || !item.suggestion || !item.reason) {
           console.warn("跳过格式不完整的建议:", item)
           return
         }
@@ -148,8 +148,8 @@ ${text}
           ...item,
           id: issueIdCounter++,
           fixed: false,
-          start: inputText.length,
-          end: inputText.length,
+          start: 0,
+          end: 0,
           category: item.category || "语法错误",
           ignored: true,
         }

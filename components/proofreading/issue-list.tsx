@@ -20,7 +20,13 @@ const CATEGORY_STYLES = {
 }
 
 export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUnignoreSuggestion }: IssueListProps) {
-  if (issues.length === 0) {
+  const sortedIssues = [...issues].sort((a, b) => {
+    if (a.start === 0 && a.end === 0) return 1
+    if (b.start === 0 && b.end === 0) return -1
+    return a.start - b.start
+  })
+
+  if (sortedIssues.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <p>暂无问题</p>
@@ -31,7 +37,7 @@ export function IssueList({ issues, onAcceptSuggestion, onIgnoreSuggestion, onUn
   return (
     <ScrollArea className="h-[400px] rounded-lg border border-border">
       <div className="divide-y divide-border">
-        {issues.map((issue: Issue) => {
+        {sortedIssues.map((issue) => {
           const style = CATEGORY_STYLES[issue.category] || CATEGORY_STYLES["表达优化"]
 
           return (

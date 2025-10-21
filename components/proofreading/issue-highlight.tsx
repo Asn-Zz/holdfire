@@ -26,7 +26,7 @@ export function IssueHighlight({
       return [{ type: "text" as const, content: inputText }]
     }
 
-    const sortedIssues = [...issues].sort((a, b) => a.start - b.start)
+    const sortedIssues = [...issues].filter((issue) => issue.start || issue.end).sort((a, b) => a.start - b.start)
     const result: Array<{ type: "text" | "highlight"; content: string; issue?: Issue }> = []
     let lastIndex = 0
 
@@ -96,16 +96,14 @@ export function IssueHighlight({
 
  useEffect(() => {
     const newSegments = segments.map((segment) => {
-      if (segment.type === "highlight") {
-        const issue = segment.issue!
-        const targetIssue = issues.find((item) => item.id === issue.id)
-        if (targetIssue) {
-          return { ...segment, content: issue.suggestion, issue: { ...issue, fixed: targetIssue.fixed, ignored: targetIssue.ignored } }
-        }
+      if (segment.type === "text" || !segment.issue) return segment
+
+      const targetIssue = issues.find((item) => item.id === segment.issue?.id)
+      if (targetIssue) {
+        return { ...segment, content: segment.issue.suggestion, issue: targetIssue }
       }
-      return segment
     })
-    setSegments(newSegments)
+    setSegments(newSegments as typeof segments)
   }, [issues]);
 
   return (
