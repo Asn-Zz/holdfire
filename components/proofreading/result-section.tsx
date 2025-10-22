@@ -43,7 +43,7 @@ export function ResultSection({
   onIgnoreCategory,
 }: ResultSectionProps) {  
   const [showDiff, setShowDiff] = useState(false)
-  const [originalData, setOriginalData] = useState({ inputText, issues })
+  const [originalData, setOriginalData] = useState(() => ({ inputText, issues }))
   const [activeCategory, setActiveCategory] = useState<IssueCategory | "all">("all")
   const [showIgnored, setShowIgnored] = useState(true)
 
@@ -86,10 +86,6 @@ export function ResultSection({
       setShowDiff(false)
     }
   }, [inputText])
-
-  useEffect(() => {
-    setOriginalData({ inputText, issues })
-  }, [])
 
   return (
     <Card>

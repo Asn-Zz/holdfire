@@ -8,7 +8,8 @@ export function TextOutput({ diff }: TextOutputProps) {
     const getHighlightClass = (item: DiffItem) => {
         const keyMap = {
             update: "highlight-warning",
-            add: "highlight-error",
+            add: "highlight-fixed",
+            del: "highlight-error",
         }
         return keyMap[item.type as keyof typeof keyMap] || ""
     }

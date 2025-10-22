@@ -24,21 +24,36 @@ export function DiffAssistant() {
   const [leftDiff, setLeftDiff] = useState<DiffItem[]>([])
   const [rightDiff, setRightDiff] = useState<DiffItem[]>([])
   const [loading, setLoading] = useState(false)
+
   const disabled = useMemo(() => inputLeft.length === 0 || inputRight.length === 0, [inputLeft, inputRight])
   const analyze = useMemo(() => ({
     update: rightDiff.filter(item => item.type === 'update').length,
     add: leftDiff.concat(rightDiff).filter(item => item.type === 'add').length,
     result: leftDiff.concat(rightDiff).length,
   }), [leftDiff, rightDiff])
+  const similarity = useMemo(() => {    
+    const commonTextLength = leftDiff
+      .filter(item => item.type === 'text')
+      .reduce((sum, item) => sum + item.content.length, 0)
+    
+    const maxTextLength = Math.max(inputLeft.length, inputRight.length)
+    const similarityPercentage = maxTextLength > 0 ? (commonTextLength / maxTextLength) * 100 : 0
+    
+    return `${similarityPercentage.toFixed(2)}%`
+  }, [leftDiff, inputLeft, inputRight])
 
   const generateDiff = async () => {
     setLoading(true)
     const leftDiff = generateDiffMarkup(inputLeft, inputRight)
     const rightDiff = generateDiffMarkup(inputRight, inputLeft)
+    const replaceDelContent = (diff: DiffItem[]) => diff.map(item => {
+      if (item.type !== 'del') { return item }
+      return { ...item, content: ' ' }
+    })
 
     await delay(500)
-    setLeftDiff(leftDiff.filter(item => item.type !== 'del'))
-    setRightDiff(rightDiff.filter(item => item.type !== 'del'))    
+    setLeftDiff(replaceDelContent(leftDiff))
+    setRightDiff(replaceDelContent(rightDiff))    
     setLoading(false)
   }
 
@@ -110,7 +125,7 @@ export function DiffAssistant() {
 
                 <Button variant="outline" onClick={onReverse}>
                   <ArrowRightLeft className="h-4 w-4" />
-                  转换
+                  对调
                 </Button>
               </div>
 
@@ -130,21 +145,23 @@ export function DiffAssistant() {
         {leftDiff.length > 0 && <Card>
           <CardHeader>
             <CardTitle>
-              <span className="flex items-end justify-between gap-2">
+              <div className="flex items-end justify-between gap-2">
                 <span className="flex items-center gap-2">
                   <Server className="h-5 w-5 text-green-500 rotate-90" />比对结果
                 </span>
 
-                {analyze.result > 0 && <span className="text-xs text-muted-foreground">
-                  统计：{`总计 ${analyze?.update + analyze?.add}、更改 ${analyze?.update}、不同 ${analyze?.add}`}
-                </span>}
-              </span>
+                {analyze.result > 0 && <div className="text-xs text-muted-foreground flex items-center gap-2">
+                  <span>相似度 {similarity}</span>
+                  <span className="highlight-warning">更改 {analyze?.update}</span>
+                  <span className="highlight-error">不同 {analyze?.add}</span>
+                </div>}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className={`flex items-start gap-4`}>
-              <TextOutput diff={leftDiff}/>
-              <TextOutput diff={rightDiff}/>
+            <div className="flex items-start gap-4 max-h-[600px] overflow-y-auto">
+              <TextOutput diff={leftDiff} />
+              <TextOutput diff={rightDiff} />
             </div>
           </CardContent>
         </Card>}
