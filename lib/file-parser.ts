@@ -175,12 +175,16 @@ export async function parseFile(file: File, config: ProofreadingConfig): Promise
     return parseDocx(file)
   } else if (fileName.endsWith(".pdf")) {
     return parsePdf(file)
-  } else if (fileName.endsWith(".txt") || fileName.endsWith(".md") || fileName.endsWith(".markdown")) {
+  } else if (file.type.startsWith("text/")) {
     return parseText(file)
   } else if (file.type.startsWith("image/")) {
     return parseImage(file, config)
   } else {
-    throw new Error("不支持的文件格式。请上传图片、TXT、MD、DOCX、PDF 文件")
+    try {
+      return parseText(file)
+    } catch (error) {
+      throw new Error("不支持的文件格式。请上传图片、TXT、MD、DOCX、PDF 文件")
+    }
   }
 }
 

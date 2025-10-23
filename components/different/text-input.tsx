@@ -19,23 +19,9 @@ export function TextInput({ config, inputText, setInputText }: InputSectionProps
     const [isParsingFile, setIsParsingFile] = useState(false)
     const { toast } = useToast()
 
-    const validExtensions = ".png,.jpg,.jpeg,.txt,.md,.markdown,.docx,.pdf"
-    const validExtensionsList = validExtensions.split(",").map((ext) => ext.slice(1).toUpperCase()).join(" ")
-
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
-
-        const fileExt = "." + file.name.split(".").pop()?.toLowerCase()
-
-        if (!validExtensions.includes(fileExt)) {
-            toast({
-                title: "不支持的文件格式",
-                description: `请上传 ${validExtensionsList} 格式的文件`,
-                variant: "destructive",
-            })
-            return
-        }
 
         setIsParsingFile(true)
         setUploadedFile(file.name)
@@ -69,6 +55,36 @@ export function TextInput({ config, inputText, setInputText }: InputSectionProps
         }
     }
 
+    const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const pastedText = event.clipboardData.getData('text')
+        const urlRegex = /^(https|http):\/\/[^\s/$.?#].[^\s]*$/i
+        
+        if (!inputText && urlRegex.test(pastedText)) {
+            event.preventDefault()
+            if (window.confirm(`检测到链接，是否要获取内容？\n${pastedText}`)) {
+                setIsParsingFile(true)
+                try {
+                    const response = await fetch(pastedText)
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+                    }
+                    const blob = await response.blob()
+                    const fileName = pastedText.split('/').pop() || ""
+                    const file = new File([blob], fileName, { type: blob.type })
+                    handleFileUpload({ target: { files: [file] } } as any)
+                } catch (error: any) {
+                    toast({
+                        title: "文件解析失败",
+                        description: error instanceof Error ? error.message : "无法解析文件",
+                        variant: "destructive",
+                    })
+                } finally {
+                    setIsParsingFile(false)
+                }
+            }
+        }
+    }
+
 
     return (
         <div className="flex-1 flex flex-col gap-4">
@@ -76,7 +92,8 @@ export function TextInput({ config, inputText, setInputText }: InputSectionProps
                 <Textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder='请输入文章内容'
+                    onPaste={handlePaste}
+                    placeholder='请输入文章内容，支持文本链接识别'
                     className="min-h-[400px] max-h-[600px] overflow-y-auto resize-none font-sans text-sm leading-relaxed"
                 />
                 <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{inputText.length} 字符</div>
@@ -89,7 +106,7 @@ export function TextInput({ config, inputText, setInputText }: InputSectionProps
                 <input
                     ref={fileInputRef}
                     type="file"
-                    accept={validExtensions}
+                    accept="accept/*"
                     className="hidden"
                     onChange={handleFileUpload}
                 />
