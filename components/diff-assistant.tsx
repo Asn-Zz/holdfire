@@ -111,177 +111,161 @@ export function DiffAssistant() {
   // Handle image upload and preview
   const handleImageUpload = (file: File, side: 'left' | 'right') => {
     if (!file || !file.type.startsWith('image/')) {
-      setImageComparisonError('Please select a valid image file');
-      return;
+      setImageComparisonError('Please select a valid image file')
+      return
     }
     
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file)
     
     if (side === 'left') {
-      setImageLeft(file);
-      setImageLeftPreview(previewUrl);
+      setImageLeft(file)
+      setImageLeftPreview(previewUrl)
     } else {
-      setImageRight(file);
-      setImageRightPreview(previewUrl);
+      setImageRight(file)
+      setImageRightPreview(previewUrl)
     }
     
     // Clear any previous diff result when a new image is uploaded
-    setImageDiffResult(null);
-    setImageComparisonError(null);
-  };
+    setImageDiffResult(null)
+    setImageComparisonError(null)
+  }
 
   // Perform image comparison using pixelmatch
   const compareImages = async () => {
     if (!imageLeft || !imageRight) {
-      setImageComparisonError('Please upload both images to compare');
-      return;
+      setImageComparisonError('Please upload both images to compare')
+      return
     }
 
-    setImageComparisonLoading(true);
-    setImageComparisonError(null);
+    setImageComparisonLoading(true)
+    setImageComparisonError(null)
 
     try {
       // Dynamically import pixelmatch to avoid server-side rendering issues
-      const pixelmatch = (await import('pixelmatch')).default;
+      const pixelmatch = (await import('pixelmatch')).default
       
       // Create a promise that resolves when both images are loaded
       const loadImage = (file: File): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
-          const url = URL.createObjectURL(file);
-          const img = new Image();
+          const url = URL.createObjectURL(file)
+          const img = new Image()
           img.onload = () => {
-            URL.revokeObjectURL(url); // Clean up the object URL
-            resolve(img);
-          };
-          img.onerror = reject;
-          img.src = url;
-        });
-      };
+            URL.revokeObjectURL(url) // Clean up the object URL
+            resolve(img)
+          }
+          img.onerror = reject
+          img.src = url
+        })
+      }
       
       // Load both images
       const [i1, i2] = await Promise.all([
         loadImage(imageLeft),
         loadImage(imageRight)
-      ]);
+      ])
       
       // Create canvas elements for image data processing
-      const canvas1 = document.createElement('canvas');
-      const canvas2 = document.createElement('canvas');
-      const ctx1 = canvas1.getContext('2d')!;
-      const ctx2 = canvas2.getContext('2d')!;
+      const canvas1 = document.createElement('canvas')
+      const canvas2 = document.createElement('canvas')
+      const ctx1 = canvas1.getContext('2d')!
+      const ctx2 = canvas2.getContext('2d')!
 
-      canvas1.width = Math.min(i1.width, i2.width);
-      canvas1.height = Math.min(i1.height, i2.height);
-      canvas2.width = Math.min(i1.width, i2.width);
-      canvas2.height = Math.min(i1.height, i2.height);
+      // Use the minimum dimensions to ensure we're comparing the same area
+      const width = Math.min(i1.width, i2.width)
+      const height = Math.min(i1.height, i2.height)
+      
+      canvas1.width = canvas2.width = width
+      canvas1.height = canvas2.height = height
 
-      ctx1.drawImage(i1, 0, 0);
-      ctx2.drawImage(i2, 0, 0);
+      ctx1.drawImage(i1, 0, 0)
+      ctx2.drawImage(i2, 0, 0)
 
-      // const img1Data = ctx1.getImageData(0, 0, canvas1.width, canvas1.height);
-      // const img2Data = ctx2.getImageData(0, 0, canvas2.width, canvas2.height);
-      
-      // Ensure both images have the same dimensions by creating a common canvas
-      const maxWidth = Math.max(canvas1.width, canvas2.width);
-      const maxHeight = Math.max(canvas1.height, canvas2.height);
-      
-      // Create new canvases with the same dimensions for comparison
-      const resizedCanvas1 = document.createElement('canvas');
-      const resizedCanvas2 = document.createElement('canvas');
-      const resizedCtx1 = resizedCanvas1.getContext('2d')!;
-      const resizedCtx2 = resizedCanvas2.getContext('2d')!;
-      
-      resizedCanvas1.width = maxWidth;
-      resizedCanvas1.height = maxHeight;
-      resizedCanvas2.width = maxWidth;
-      resizedCanvas2.height = maxHeight;
-      
-      // Draw original images onto the resized canvases
-      resizedCtx1.drawImage(i1, 0, 0, i1.width, i1.height);
-      resizedCtx2.drawImage(i2, 0, 0, i2.width, i2.height);
-      
-      // Get image data from resized canvases
-      const resizedImg1Data = resizedCtx1.getImageData(0, 0, maxWidth, maxHeight);
-      const resizedImg2Data = resizedCtx2.getImageData(0, 0, maxWidth, maxHeight);
+      // Get image data from both canvases
+      const img1Data = ctx1.getImageData(0, 0, width, height)
+      const img2Data = ctx2.getImageData(0, 0, width, height)
       
       // Create result canvas for diff
-      const diffCanvas = document.createElement('canvas');
-      diffCanvas.width = maxWidth;
-      diffCanvas.height = maxHeight;
-      const diffCtx = diffCanvas.getContext('2d')!;
-      const diffData = diffCtx.createImageData(maxWidth, maxHeight);
+      const diffCanvas = document.createElement('canvas')
+      diffCanvas.width = width
+      diffCanvas.height = height
+      const diffCtx = diffCanvas.getContext('2d')!
+      const diffData = diffCtx.createImageData(width, height)
       
       // Compare images with pixelmatch
       const pixels = pixelmatch(
-        resizedImg1Data.data,
-        resizedImg2Data.data,
+        img1Data.data,
+        img2Data.data,
         diffData.data,
-        maxWidth,
-        maxHeight,
+        width,
+        height,
         { threshold, diffColorAlt: [0, 255, 0] }
-      );      
+      )      
       
       // Put the diff data to the canvas
-      diffCtx.putImageData(diffData, 0, 0);
+      diffCtx.putImageData(diffData, 0, 0)
 
       await delay(500)
       
       // Convert the diff canvas to a data URL for display
-      const diffDataUrl = diffCanvas.toDataURL();
-      setImageDiffResult(diffDataUrl);
-      setImageSize({ width: maxWidth, height: maxHeight })
+      const diffDataUrl = diffCanvas.toDataURL()
+      setImageDiffResult(diffDataUrl)
+      setImageSize({ width, height })
     } catch (error) {
-      console.error('Error comparing images:', error);
-      setImageComparisonError('Failed to compare images. Please try again.');
+      console.error('Error comparing images:', error)
+      setImageComparisonError('Failed to compare images. Please try again.')
     } finally {
-      setImageComparisonLoading(false);
+      setImageComparisonLoading(false)
     }
-  };
+  }
 
   // Handle image input change
   const handleImageInputChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'left' | 'right') => {
     if (e.target.files && e.target.files[0]) {
-      handleImageUpload(e.target.files[0], side);
+      handleImageUpload(e.target.files[0], side)
     }
-  };
+  }
 
   // Clear image comparison state
   const clearImages = () => {
-    if (imageLeftPreview) URL.revokeObjectURL(imageLeftPreview);
-    if (imageRightPreview) URL.revokeObjectURL(imageRightPreview);
+    if (imageLeftPreview) URL.revokeObjectURL(imageLeftPreview)
+    if (imageRightPreview) URL.revokeObjectURL(imageRightPreview)
     
-    setImageLeft(null);
-    setImageRight(null);
-    setImageLeftPreview(null);
-    setImageRightPreview(null);
-    setImageDiffResult(null);
-    setImageComparisonError(null);
-  };
+    setImageLeft(null)
+    setImageRight(null)
+    setImageLeftPreview(null)
+    setImageRightPreview(null)
+    setImageDiffResult(null)
+    setImageComparisonError(null)
+  }
 
   const onLoadImageExample = async () => {
-    const examples = ['4a.png', '4b.png'];
+    if (imageComparisonLoading) return
+    const examples = ['4a.png', '4b.png']
 
     try {
+      setImageComparisonLoading(true)
       const [res1, res2] = await Promise.all([
         fetch(`/example/${examples[0]}`),
         fetch(`/example/${examples[1]}`)
-      ]);
+      ])
       
-      const [blob1, blob2] = await Promise.all([res1.blob(), res2.blob()]);
+      const [blob1, blob2] = await Promise.all([res1.blob(), res2.blob()])
       
-      const file1 = new File([blob1], examples[0], { type: 'image/png' });
-      const file2 = new File([blob2], examples[1], { type: 'image/png' });
+      const file1 = new File([blob1], examples[0], { type: 'image/png' })
+      const file2 = new File([blob2], examples[1], { type: 'image/png' })
       
-      handleImageUpload(file1, 'left');
-      handleImageUpload(file2, 'right');
+      handleImageUpload(file1, 'left')
+      handleImageUpload(file2, 'right')
     } catch (error) {
-      console.error('Error loading example images:', error);
-      setImageComparisonError('Failed to load example images. Please try again.');
+      console.error('Error loading example images:', error)
+      setImageComparisonError('Failed to load example images. Please try again.')
+    } finally {
+      setImageComparisonLoading(false)
     }
-  };
+  }
 
   const getDiffText = async () => {
-    if (loading) return;
+    if (loading) return
     try {
       setLoading(true)
       const response = await fetch('https://text.pollinations.ai/openai', {
@@ -319,10 +303,10 @@ export function DiffAssistant() {
 
       setImageDiffResults(parsedText)
     } catch (error) {
-      console.error('Error getting diff text:', error);
-      setImageComparisonError('Failed to get diff text. Please try again.');
+      console.error('Error getting diff text:', error)
+      setImageComparisonError('Failed to get diff text. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -333,11 +317,9 @@ export function DiffAssistant() {
       <div className="flex flex-col gap-8 container mx-auto px-4 py-8 max-w-7xl">
         {/* Tab selector */}
         <Tabs value={activeTab} onValueChange={(v: any) => {
-          setActiveTab(v);
+          setActiveTab(v)
           // Clear image comparison when switching to text tab
-          if (v === 'text') {
-            clearImages();
-          }
+          if (v === 'text') { clearImages() }
         }}>
           <TabsList className="w-full justify-start overflow-y-auto bg-muted scrollbar-hide">
             <TabsTrigger value="text" className="flex items-center gap-2">
