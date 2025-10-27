@@ -63,6 +63,7 @@
     "next-themes": "latest",
     "path": "latest",
     "pdfjs-dist": "latest",
+    "pixelmatch": "^7.1.0",
     "react": "^19",
     "react-day-picker": "9.8.0",
     "react-dom": "^19",
@@ -82,12 +83,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "concurrently": "^8.2.2",
+    "electron": "38.2.2",
+    "electron-builder": "^25.1.8",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5",
-    "electron": "38.2.2",
-    "electron-builder": "^25.1.8",
     "wait-on": "^8.0.1"
   }
 }

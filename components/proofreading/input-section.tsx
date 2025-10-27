@@ -206,7 +206,7 @@ export function InputSection({
             </span>
             <a href="https://changfengbox.top/wechat" target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1">
               <Link className="h-3 w-3" />
-              文章在线下载
+              文章下载
             </a>
           </CardTitle>
         </CardHeader>

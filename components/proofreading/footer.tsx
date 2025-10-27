@@ -50,7 +50,7 @@ export function Footer() {
                         <span>文章校对助手</span>
                         <a href="/diff" className="text-xs text-primary hover:underline flex items-center gap-1">
                             <Link className="h-3 w-3" />
-                            文本在线比对
+                            在线比对
                         </a>
                     </div>
                 </CardTitle>
