@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react"
+import { useRef, useEffect, useState } from "react"
 import { ImageIcon } from "lucide-react"
 import { Input } from "../ui/input"
 
@@ -10,15 +10,21 @@ interface ImageInputProps {
 
 export function ImageInput({ imagePreview, image, handleImageInputChange }: ImageInputProps) {
     const fileRef = useRef<HTMLInputElement>(null)
-    const getFileInfo = () => {
-        if (!imagePreview || !image) return '';
+    const [fileInfo, setFileInfo] = useState('')
 
-        const elm = new Image();
-        elm.src = imagePreview;
-        const width = elm.width;
-        const height = elm.height;
-        return `${image.name}（${width}x${height}）`;
-    }
+    useEffect(() => {
+        if (image && imagePreview) {
+            const img = new Image();
+            img.onload = () => {
+                setFileInfo(`${image.name}（${img.naturalWidth}x${img.naturalHeight}）`);
+            };
+            img.src = imagePreview;
+        } else if (image) {
+            setFileInfo(`${image.name}（${(image.size / 1024).toFixed(2)} KB）`);
+        } else {
+            setFileInfo('');
+        }
+    }, [imagePreview, image])
 
     return (
         <div className="flex-1">
@@ -31,7 +37,7 @@ export function ImageInput({ imagePreview, image, handleImageInputChange }: Imag
                             className="max-h-48 mx-auto rounded object-contain"
                             onClick={() => fileRef.current?.click()}
                         />
-                        <p className="text-sm text-muted-foreground truncate">{getFileInfo()}</p>
+                        <p className="text-sm text-muted-foreground truncate">{fileInfo}</p>
                     </div>
                 )}
 

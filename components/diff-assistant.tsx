@@ -495,7 +495,7 @@ export function DiffAssistant() {
         )}
 
         {imageDiffResult && (
-          <Card className="mt-4">
+          <Card>
             <CardHeader>
               <CardTitle>
                 <div className="flex items-center justify-between gap-2">
