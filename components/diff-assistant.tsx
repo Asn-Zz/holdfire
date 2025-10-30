@@ -316,11 +316,7 @@ export function DiffAssistant() {
 
       <div className="flex flex-col gap-8 container mx-auto px-4 py-8 max-w-7xl">
         {/* Tab selector */}
-        <Tabs value={activeTab} onValueChange={(v: any) => {
-          setActiveTab(v)
-          // Clear image comparison when switching to text tab
-          if (v === 'text') { clearImages() }
-        }}>
+        <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
           <TabsList className="w-full justify-start overflow-y-auto bg-muted scrollbar-hide">
             <TabsTrigger value="text" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -476,7 +472,7 @@ export function DiffAssistant() {
           </div>
         )}
 
-        {imageDiffResult && (
+        {activeTab === 'image' && imageDiffResult && (
           <Card>
             <CardHeader>
               <CardTitle>

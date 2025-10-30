@@ -92,7 +92,7 @@ export function useProofreading() {
 请确保:
 1. 只返回JSON格式的数据，不要包含任何额外解释或markdown标记。
 2. "original" 字段必须是原文中连续且完全匹配的片段。
-3. 保持原文风格，不要过度修改。
+3. 按照原文顺序返回，保持原文风格不要过度修改。
 文本内容：
 """
 ${text}
@@ -123,7 +123,7 @@ ${text}
       setAnalyze(analyzeData)
       
       const responseContent = content.replace(/^```json\s*|```$/g, "").trim()
-      let parsedIssues = []
+      let parsedIssues: Issue[] = []
       try {
         parsedIssues = JSON.parse(responseContent)
         if (!Array.isArray(parsedIssues)) throw new Error("响应不是JSON数组。")
@@ -134,15 +134,8 @@ ${text}
         if (!Array.isArray(parsedIssues)) throw new Error("修复后的响应不是JSON数组。")
       }
 
-      let currentOffset = 0
-      const processedIssues: Issue[] = []
-      let issueIdCounter = 0
-
-      parsedIssues.forEach((item: any) => {
-        if (!item.original || !item.suggestion || !item.reason) {
-          console.warn("跳过格式不完整的建议:", item)
-          return
-        }
+      let [issueIdCounter, currentOffset] = [0, 0]
+      const processedIssues = parsedIssues.map((item) => {
         const start = inputText.indexOf(item.original, currentOffset)
         const issue = {
           ...item,
@@ -161,7 +154,7 @@ ${text}
           currentOffset = start + 1
         }
 
-        processedIssues.push(issue)
+        return issue
       })
 
       setIssues(processedIssues.sort((a, b) => a.start - b.start))
