@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { FileText, List, Loader2 } from "lucide-react"
+import { FileText, List, Loader2, Download } from "lucide-react"
 import type { ParsedFile, Chapter } from "@/lib/file-parser"
 import { useState, useEffect, useRef } from "react"
+import { exportByBlob } from "@/lib/utils"
 
 interface FilePreviewCardProps {
   open: boolean
@@ -56,6 +57,15 @@ export function FilePreviewCard({ open, file, onConfirm, onTransfer }: FilePrevi
     })
   }
 
+  const exportText = () => {
+    const innerText = previewRef.current?.innerText || ''
+    const blob = new Blob([innerText], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const fileName = `${file?.metadata.fileName.trim()}.md`
+
+    exportByBlob(url, fileName)
+  }
+
   if (!file) return null;
 
   if (!open || !file) return null;
@@ -63,8 +73,13 @@ export function FilePreviewCard({ open, file, onConfirm, onTransfer }: FilePrevi
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" /> 文件预览
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5" /> 文件预览
+          </div>
+          <span onClick={exportText} className="text-xs text-primary flex items-center gap-1 cursor-pointer">
+            <Download className="h-3 w-3" /> 导出文本
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>

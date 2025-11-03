@@ -12,7 +12,6 @@ import { request } from "@/lib/request"
 import { FilePreviewCard } from "./file-preview-card"
 import { useToast } from "@/hooks/use-toast"
 import type { ProofreadingConfig } from "@/types/proofreading"
-import fetchSSE from "@/lib/fetchSSE"
 
 interface InputSectionProps {
   config: ProofreadingConfig
@@ -153,11 +152,10 @@ export function InputSection({
     setIsParsingFile(true)
 
     try {
-      const customPrompt = '请将以下文本转换为markdown格式：\n\n'
-      const payload = { ...config, customPrompt, inputText: text }
-      const { content } = await fetchSSE(payload)
-
-      const file = new File([content], `${uploadedFile}.md`, { type: 'text/markdown' });
+      const prompt = '请将以下文本转换为markdown格式：\n\n' + text
+      const response = await fetch(`https://text.pollinations.ai/${prompt}?model=gemini&token=${config.pollinationsKey}`);
+      const data = await response.text()
+      const file = new File([data], `${uploadedFile}.md`, { type: 'text/markdown' });
       handleFileUpload({ target: { files: [file] } } as any);
     } catch (error: any) {
       console.error("[v0] Error transferring file:", error);

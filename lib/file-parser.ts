@@ -61,7 +61,7 @@ export async function parsePdf(file: File): Promise<ParsedFile> {
     const arrayBuffer = await file.arrayBuffer()
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise    
 
-    let fullText = ""
+    const pages = []
 
     // Extract text from all pages
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -69,10 +69,10 @@ export async function parsePdf(file: File): Promise<ParsedFile> {
       const textContent = await page.getTextContent()
       const pageText = textContent.items.slice(0, -2).map((item: any) => item.str).join(" ")
       
-      fullText += pageText + "\n\n"
+      if (pageText.length > 0) pages.push(pageText)
     }
-
-    const text = fullText.trim();
+    
+    const text = pages.join("\n\n")
     const outline = await pdf.getOutline()
     const chapters = outline.map((item: any, index: number) => ({
       id: `chapter-${index + 1}`,
