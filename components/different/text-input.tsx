@@ -60,8 +60,8 @@ export function TextInput({ config, inputText, setInputText }: InputSectionProps
         const urlRegex = /^(https|http):\/\/[^\s/$.?#].[^\s]*$/i
         
         if (!inputText && urlRegex.test(pastedText)) {
-            event.preventDefault()
             if (window.confirm(`检测到链接，是否要获取内容？\n${pastedText}`)) {
+                event.preventDefault()
                 setIsParsingFile(true)
                 try {
                     const response = await fetch(pastedText)

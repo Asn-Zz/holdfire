@@ -124,8 +124,8 @@ export function InputSection({
     const apiKey = config.firecrawlKey || process.env.NEXT_PUBLIC_FIRE_KEY;    
     
     if (urlRegex.test(pastedText) && apiKey) {
-      event.preventDefault();
       if (window.confirm(`检测到链接，是否要抓取网页内容？\n${pastedText}`)) {
+        event.preventDefault();
         setIsParsingFile(true);
         try {
           const body = { url: pastedText, formats: ['markdown'] };
